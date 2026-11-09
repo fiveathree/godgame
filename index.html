@@ -388,7 +388,7 @@ function refillBoards(){
 }
 
 function newGame(){
-  S = {day:1, faith:0, food:10, clean:30, div:30, cor:10, summons:0, uid:1, players:[], quests:[], active:[], graves:[],
+  S = {day:1, faith:30, food:10, clean:30, div:0, cor:10, summons:0, uid:1, players:[], quests:[], active:[], graves:[],
        intel:{}, wiki:{}, logs:[], mainSpawned:false, over:null};
   MONS.forEach(m => { S.intel[m.id] = 0; S.wiki[m.id] = []; });
   S.players.push(makePlayer('believer'));
