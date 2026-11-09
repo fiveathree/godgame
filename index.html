@@ -339,6 +339,8 @@ const rarBadge = r => `<span class="rar rar-${r}">${r}</span>`;
 const snap = p => JSON.parse(JSON.stringify(p));
 function expNeed(lv){ return lv*25; }
 const MAXP = 6;
+const BAL = {danger:17, div:1.3, expire:2};
+const divGain = t => Math.ceil(t*BAL.div);
 function summonCost(){ return 30 + S.summons*15; }
 function worshipPeriod(p){ return (5 - 2*S.clean/100) * (p.trait === 'devout' ? 0.67 : 1) * (hasAb(p,'zeal') ? 0.67 : 1); }
 function getP(id){ return S.players.find(p => p.id === id); }
@@ -350,7 +352,7 @@ function genQuest(board){
   return {
     id:S.uid++, board, mon:m.id, tier,
     title: pick(TPL[board]).replace('{m}', m.n),
-    danger: tier*16 + R(0,8),
+    danger: tier*BAL.danger + R(0,10),
     days: R(1, Math.min(3, tier)),
     reward: tier*22 + R(0,15),
     expire: S.day + R(3,5),
@@ -536,9 +538,9 @@ function resolve(a){
   saved.forEach(p => { if (alive.includes(p)){ p.status = 'injured'; p.inj = 3; } });
   if (ok){
     S.cor = clamp(S.cor - q.tier*3, 0, 100);
-    S.div = clamp(S.div + q.tier*2 + (q.main?50:0), 0, 100);
+    S.div = clamp(S.div + divGain(q.tier) + (q.main?50:0), 0, 100);
     alive.forEach(p => p.morale = clamp(p.morale + 5, 0, 100));
-    log(`「${q.title}」完成。神格 +${q.tier*2}。`, 'c-green');
+    log(`「${q.title}」完成。神格 +${divGain(q.tier)}。`, 'c-green');
   } else {
     S.cor = clamp(S.cor + q.tier*2, 0, 100);
     alive.forEach(p => { p.inj = Math.max(p.inj||0, R(1,2)); p.status = 'injured'; });
@@ -643,8 +645,8 @@ function nextDay(){
   });
   // 過期任務
   S.quests.filter(q => q.expire < S.day).forEach(q => {
-    S.cor = clamp(S.cor + q.tier*3, 0, 100);
-    log(`⌛ 冇人接「${q.title}」，村民失蹤咗。詭異 +${q.tier*3}。`, 'c-gold');
+    S.cor = clamp(S.cor + q.tier*BAL.expire, 0, 100);
+    log(`⌛ 冇人接「${q.title}」，村民失蹤咗。詭異 +${q.tier*BAL.expire}。`, 'c-gold');
   });
   S.quests = S.quests.filter(q => q.expire >= S.day);
   // 每日變化
@@ -678,7 +680,7 @@ function nextDay(){
       S.faith -= lost;
       log(`🌙 半夜有嘢爬入神殿（威脅 ${threat}）${guards.length ? '，守衛頂唔住' : '，冇人守夜'}。神力被偷走 ${lost}。`, 'c-red');
       const victims = S.players.filter(p => p.status === 'idle');
-      if (victims.length && Math.random() < (guards.length ? 0.15 : 0.3)){
+      if (victims.length && S.players.length > 1 && S.day > 5 && Math.random() < (guards.length ? 0.15 : 0.3)){
         const v = pick(victims);
         S.graves.push({name:v.name, cls:v.cls, lv:v.lv, day:S.day, where:'夜襲：被拖入黑暗', last:pick(SAY.dieLast), snap:snap(v)});
         S.players = S.players.filter(x => x !== v);
@@ -687,7 +689,7 @@ function nextDay(){
       }
     }
   }
-  const creep = Math.max(0, Math.min(4, 2 + Math.floor(S.day/12)) - guards.length - cleaners);
+  const creep = Math.max(0, Math.min(3, 1 + Math.floor(S.day/15)) - guards.length - cleaners);
   S.cor = clamp(S.cor + creep, 0, 100);
   S.players.forEach(p => { if (p.status === 'idle') p.morale = clamp(p.morale + 1, 0, 100); });
   refillBoards();
