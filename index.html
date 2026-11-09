@@ -71,7 +71,7 @@ button.danger{background:#3a1515;border-color:#6d2a2a}
 .scene{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;aspect-ratio:800/400;min-height:300px;background:#0b0a12}
 .scene svg.bg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .scene-title{position:absolute;left:14px;top:10px;font-size:20px;color:var(--gold);text-shadow:0 2px 8px #000;letter-spacing:3px;display:flex;align-items:center;gap:4px}
-.scene-act{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;gap:8px;align-items:center}
+.scene-act{position:absolute;left:12px;top:46px;display:flex;gap:8px;align-items:center}
 .scene-act button{box-shadow:0 0 18px #d9b45c55;white-space:nowrap}
 .pill{white-space:nowrap}
 .pill{display:inline-flex;align-items:center;gap:2px;background:#000a;border:1px solid var(--line);border-radius:14px;padding:4px 10px;font-size:13px}
@@ -90,6 +90,23 @@ button.danger{background:#3a1515;border-color:#6d2a2a}
 .tomb span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:62px}
 .tomb.left{opacity:.6}
 .tomb:hover span,.tomb:focus span{color:var(--gold)}
+.bow{transform-box:fill-box;transform-origin:50% 100%;animation:bow 3s ease-in-out infinite}
+@keyframes bow{0%,100%{transform:translateY(4px) scaleY(.7)}30%,70%{transform:none}}
+.sway{transform-box:fill-box;transform-origin:50% 100%;animation:sway 4s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-1.5deg)}50%{transform:rotate(1.5deg)}}
+.sweep{transform-box:fill-box;transform-origin:50% 0;animation:sweep 1.4s ease-in-out infinite}
+@keyframes sweep{0%,100%{transform:rotate(-22deg)}50%{transform:rotate(18deg)}}
+.plus{font:700 16px system-ui;fill:#ffe08a;paint-order:stroke;stroke:#000;stroke-width:3px;animation:plus 1.2s ease-out forwards}
+@keyframes plus{from{transform:translateY(0);opacity:1}to{transform:translateY(-34px);opacity:0}}
+.scene-stats{position:absolute;right:12px;top:10px;display:flex;gap:6px}
+.crew{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.crew-row{display:grid;grid-template-columns:minmax(120px,1fr) 260px;gap:8px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:6px 10px}
+.crew-row .who{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jobs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.jobs button{padding:4px 0;font-size:12px;border-radius:6px;white-space:nowrap}
+.jobs button.on{border-color:var(--gold);background:#2a2316;color:var(--gold)}
+.jobs .away{grid-column:1/-1;text-align:center;font-size:12px;padding:4px 0}
+@media (max-width:520px){.crew-row{grid-template-columns:1fr}}
 /* info popover */
 .info{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1px solid var(--dim);color:var(--dim);font-size:11px;font-style:normal;cursor:help;position:relative;vertical-align:middle;margin-left:3px;outline:none;flex:none}
 .info:hover,.info:focus{color:var(--gold);border-color:var(--gold)}
@@ -128,7 +145,8 @@ input[type=range]{width:100%;accent-color:var(--gold)}
   <header id="top">
     <h1>落魄神明</h1>
     <div class="stat">📅 第 <b id="sDay">1</b> 日</div>
-    <div class="stat">🕯️ 信仰 <b id="sFaith">0</b><i class="info" tabindex="0" data-tip="神明嘅貨幣。用嚟召喚新玩家、施展神蹟。任務賞金你冇分俾玩家嗰份就係你嘅信仰。村民每日都會供奉少少。">i</i></div>
+    <div class="stat">✨ 神力 <b id="sFaith">0</b><i class="info" tabindex="0" data-tip="信徒每膜拜一次，你就多 1 點神力。用嚟召喚玩家、施展神蹟。任務賞金你冇分出去嗰份都會變成神力。">i</i></div>
+    <div class="stat">🌾 糧食 <b id="sFood">0</b><i class="info" tabindex="0" data-tip="每人每日食 1。派人「生產」先有得補充。冇嘢食，全部人士氣大跌。">i</i></div>
     <div class="stat">👑 神格 <div class="bar"><i id="bDiv" style="background:var(--gold)"></i></div><b id="sDiv">0</b><i class="info" tabindex="0" data-tip="完成任務會恢復神格。神格去到 100，主線任務「空白神座」就會喺公會出現，打贏就通關。">i</i></div>
     <div class="stat">🩸 詭異 <div class="bar"><i id="bCor" style="background:var(--red)"></i></div><b id="sCor">0</b><i class="info" tabindex="0" data-tip="世界嘅詭異程度，每日自然上升。任務過期或失敗會升更多，完成任務會壓返低。去到 100 就全村淪陷，遊戲結束。">i</i></div>
     <div class="spacer"></div>
@@ -141,7 +159,7 @@ input[type=range]{width:100%;accent-color:var(--gold)}
         <button data-tab="temple">⛩️ 神殿<span class="badge" id="bgTemple">0</span></button>
         <button data-tab="village">🏚️ 新手村<span class="badge" id="bgVillage">0</span></button>
         <button data-tab="guild">📜 公會<span class="badge" id="bgGuild">0</span></button>
-        <button data-tab="players">🎮 玩家<span class="badge" id="bgPlayers">0</span></button>
+        <button data-tab="players">👥 人手<span class="badge" id="bgPlayers">0</span></button>
         <button data-tab="wiki">📖 攻略<span class="badge" id="bgWiki">0</span></button>
       </nav>
       <div id="panel"></div>
@@ -171,6 +189,7 @@ const CLASSES = {
   rogue:  {n:'刺客',ic:'🗡️',base:15,death:1,   d:'平衡型，冇特別'},
   priest: {n:'牧師',ic:'✨',base:10,death:0.9, d:'火力低，但同隊其他人死亡率 ×0.7'},
   archer: {n:'弓手',ic:'🏹',base:13,death:0.85,d:'企後排，死亡率 ×0.85'},
+  believer:{n:'信徒',ic:'🙏',base:7,death:1.1,d:'本地村民，唔識打，但膜拜最虔誠。死亡率 ×1.1'},
 };
 const TRAITS = {
   reckless:{n:'莽撞',c:'c-red',   d:'見門就踢。戰力 +15%，死亡率 ×1.6；得閒會自己走去「試錯」，有機會帶返攻略，亦有機會返唔到嚟。'},
@@ -178,8 +197,16 @@ const TRAITS = {
   greedy:  {n:'貪婪',c:'c-gold',  d:'課金腦。分成低過 60% 會好唔開心（士氣大跌）。'},
   wiki:    {n:'攻略組',c:'c-purple',d:'邊打邊寫 wiki。攻略進度 ×1.5。'},
   lucky:   {n:'歐皇',c:'c-green', d:'抽卡從不失手。全隊成功率 +8%。'},
-  streamer:{n:'直播主',c:'c-blue',d:'成日對住空氣講嘢，村民以為佢喺度傳教。每日信仰 +3。'},
+  streamer:{n:'直播主',c:'c-blue',d:'成日對住空氣講嘢，村民以為佢喺度傳教。每日神力 +3。'},
+  devout:  {n:'虔誠',c:'c-gold',  d:'膜拜速度 ×1.5。佢唔知乜嘢係遊戲，佢只知道你係神。'},
 };
+const JOBS = {
+  worship:{n:'膜拜',ic:'🙏',d:'喺神像前不斷膜拜，每拜一次神力 +1。神殿越乾淨拜得越快。'},
+  produce:{n:'生產',ic:'🌾',d:'去田度耕作，每人每日糧食 +3（信徒 +4）。'},
+  clean:  {n:'清潔',ic:'🧹',d:'打掃神殿，每人每日整潔 +20、詭異 −1。'},
+  guard:  {n:'守衛',ic:'🛡️',d:'夜晚守住神殿。詭異會派嘢嚟夜襲，冇人守就可能有人被拖走。每個守衛令詭異每日少升 1。'},
+};
+const BELIEVER_NAMES = ['阿福','何婆','細牛','老鐘','阿蘭','石頭','跛腳陳','啞妹'];
 const MONS = [
   {id:'faceless',n:'無面村民',d:'白天同你打招呼，夜晚塊面唔見咗'},
   {id:'well',    n:'井底低語',d:'井入面有人叫緊你個名'},
@@ -208,18 +235,25 @@ const SAY = {
 
 /* ---------- 狀態 ---------- */
 let S, tab = 'temple', pendingReports = [];
-const SAVE_KEY = 'fallengod-save-v1';
+const SAVE_KEY = 'fallengod-save-v2';
 
-function makePlayer(){
+function makePlayer(kind){
   const used = new Set(S.players.map(p => p.name).concat(S.graves.map(g => g.name)));
   let name, tries = 0;
+  if (kind === 'believer'){
+    do { name = pick(BELIEVER_NAMES); tries++; } while (used.has(name) && tries < 50);
+    return {id:S.uid++, name, cls:'believer', trait:'devout', kind, job:'worship', lv:1, exp:0, morale:90, status:'idle', inj:0, done:0, joined:S.day};
+  }
   do { name = pick(NAME_A) + pick(NAME_B); tries++; } while (used.has(name) && tries < 50);
-  const cls = pick(Object.keys(CLASSES)), trait = pick(Object.keys(TRAITS));
-  return {id:S.uid++, name, cls, trait, lv:1, exp:0, morale:70, status:'idle', inj:0, done:0, joined:S.day};
+  const cls = pick(Object.keys(CLASSES).filter(c => c !== 'believer'));
+  const trait = pick(Object.keys(TRAITS).filter(t => t !== 'devout'));
+  return {id:S.uid++, name, cls, trait, kind:'player', job:'worship', lv:1, exp:0, morale:70, status:'idle', inj:0, done:0, joined:S.day};
 }
 function power(p){ return CLASSES[p.cls].base + (p.lv-1)*7; }
 function expNeed(lv){ return lv*25; }
+const MAXP = 6;
 function summonCost(){ return 30 + S.summons*15; }
+function worshipPeriod(p){ return (5 - 2*S.clean/100) * (p.trait === 'devout' ? 0.67 : 1); }
 function getP(id){ return S.players.find(p => p.id === id); }
 
 function genQuest(board){
@@ -249,14 +283,15 @@ function refillBoards(){
 }
 
 function newGame(){
-  S = {day:1, faith:40, div:0, cor:10, summons:0, uid:1, players:[], quests:[], active:[], graves:[],
+  S = {day:1, faith:0, food:10, clean:30, div:0, cor:10, summons:0, uid:1, players:[], quests:[], active:[], graves:[],
        intel:{}, wiki:{}, logs:[], mainSpawned:false, over:null};
   MONS.forEach(m => { S.intel[m.id] = 0; S.wiki[m.id] = []; });
-  for (let i = 0; i < 5; i++) S.players.push(makePlayer());
+  S.players.push(makePlayer('believer'));
   refillBoards();
   logDay();
   log('你曾經係呢個世界嘅神。而家，連廟都爛埋。', 'c-dim');
-  log('你用最後嘅神力，從「另一個世界」召喚咗五個人。佢哋以為呢度係一隻新出嘅 VR 遊戲。', 'c-dim');
+  log(`全世界只剩一個人仲記得你：${S.players[0].name}。佢日日跪喺冇頭嘅神像前面。`, 'c-dim');
+  log('儲夠神力，就可以從「另一個世界」召喚玩家。佢哋會以為呢度係一隻 VR 遊戲。', 'c-dim');
   log('佢哋唔知道：喺呢度死咗，就真係冇咗。', 'c-red');
   pendingReports = [];
   tab = 'temple';
@@ -328,7 +363,7 @@ function openDispatch(qid){
         </label>`).join('') : '<p class="c-dim">冇閒置嘅玩家。佢哋全部出咗去，或者……</p>'}
       <label class="pick ${bless?'sel':''}" id="blessRow" style="margin-top:10px">
         <input type="checkbox" ${bless?'checked':''} ${S.faith<20?'disabled':''}>
-        <span>✨ 施展神蹟（−20 信仰）<br><span class="c-dim" style="font-size:12px">全隊死亡率減半。佢哋會以為係「隱藏 buff」。</span></span>
+        <span>✨ 施展神蹟（−20 神力）<br><span class="c-dim" style="font-size:12px">全隊死亡率減半。佢哋會以為係「隱藏 buff」。</span></span>
       </label>`;
     $('#mFoot').innerHTML = `<button id="mCancel">取消</button><button class="primary" id="mGo" ${(sel.size<q.min||sel.size>5)?'disabled':''}>出發</button>`;
     $('#mBody').querySelectorAll('.pick[data-id]').forEach(el => el.onclick = ev => {
@@ -418,9 +453,9 @@ function showReport(rep){
       const each = Math.floor(rep.q.reward * share/100 / alive.length);
       const mine = rep.q.reward - each*alive.length;
       html += `<div class="share">
-        <div class="row"><b>分賞金俾玩家 <i class="info" tabindex="0" data-tip="分得越多，玩家升級越快、越開心。留低嘅就係你嘅信仰。分得太少會打擊士氣；貪婪嘅玩家要 60% 以上先滿意。士氣跌到好低，玩家會直接退遊。">i</i></b><b class="c-gold">${share}%</b></div>
+        <div class="row"><b>分賞金俾玩家 <i class="info" tabindex="0" data-tip="分得越多，玩家升級越快、越開心。留低嘅就係你嘅神力。分得太少會打擊士氣；貪婪嘅玩家要 60% 以上先滿意。士氣跌到好低，玩家會直接退遊。">i</i></b><b class="c-gold">${share}%</b></div>
         <input type="range" id="shareR" min="0" max="100" step="5" value="${share}">
-        <div class="row"><span>每人得 <b class="c-green">${each} EXP</b>（${alive.length} 人）</span><span>你得 <b class="c-gold">${mine} 信仰</b></span></div>
+        <div class="row"><span>每人得 <b class="c-green">${each} EXP</b>（${alive.length} 人）</span><span>你得 <b class="c-gold">${mine} 神力</b></span></div>
         ${alive.map(p => {
           const m = moraleDelta(p, share);
           return `<div class="row"><span>${CLASSES[p.cls].ic} ${esc(p.name)} <span class="${TRAITS[p.trait].c}">${TRAITS[p.trait].n}</span></span><span class="${m>0?'c-green':m<0?'c-red':'c-dim'}">士氣 ${m>0?'+':''}${m}</span></div>`;
@@ -442,7 +477,7 @@ function showReport(rep){
             p.exp += each;
             while (p.exp >= expNeed(p.lv)){ p.exp -= expNeed(p.lv); p.lv++; log(`⬆ ${p.name} 升到 Lv${p.lv}！`, 'c-green'); }
           });
-          log(`分出 ${share}% 賞金，收回 ${rep.q.reward - each*alive.length} 信仰。`, 'c-gold');
+          log(`分出 ${share}% 賞金，收回 ${rep.q.reward - each*alive.length} 神力。`, 'c-gold');
         } else S.faith += rep.q.reward;
       }
       checkLeavers();
@@ -508,10 +543,45 @@ function nextDay(){
   });
   S.quests = S.quests.filter(q => q.expire >= S.day);
   // 每日變化
+  const home = S.players.filter(p => p.status === 'idle');
+  const onJob = j => home.filter(p => p.job === j);
   const streamers = S.players.filter(p => p.trait === 'streamer').length;
-  const tithe = (S.cor < 60 ? 4 : 1) + streamers*3;
-  S.faith += tithe;
-  const creep = Math.min(4, 2 + Math.floor(S.day/12));
+  if (streamers) S.faith += streamers*3;
+  // 生產 / 食飯
+  const grown = onJob('produce').reduce((t,p) => t + (p.kind === 'believer' ? 4 : 3), 0);
+  S.food += grown - S.players.length;
+  if (grown) log(`🌾 田裡收成 +${grown} 糧食。`, 'c-green');
+  if (S.food < 0){
+    S.food = 0;
+    S.players.forEach(p => p.morale = clamp(p.morale - 10, 0, 100));
+    log('🍂 冇嘢食。所有人士氣 −10。玩家話：「呢隻 game 仲要計飢餓值？」', 'c-gold');
+  }
+  // 清潔
+  const cleaners = onJob('clean').length;
+  S.clean = clamp(S.clean - 8 + cleaners*20, 0, 100);
+  // 守衛 / 夜襲
+  const guards = onJob('guard');
+  if (Math.random() < S.cor/120 && S.players.length){
+    const threat = Math.round(S.cor/2 + R(0,15));
+    const gp = guards.reduce((t,p) => t + power(p), 0);
+    if (guards.length && gp >= threat){
+      guards.forEach(p => { p.exp += 5; while (p.exp >= expNeed(p.lv)){ p.exp -= expNeed(p.lv); p.lv++; } });
+      log(`🌙 半夜有嘢爬入神殿（威脅 ${threat}），被 ${guards.map(p=>p.name).join('、')} 趕走咗。`, 'c-green');
+    } else {
+      const lost = Math.floor(S.faith*0.2);
+      S.faith -= lost;
+      log(`🌙 半夜有嘢爬入神殿（威脅 ${threat}）${guards.length ? '，守衛頂唔住' : '，冇人守夜'}。神力被偷走 ${lost}。`, 'c-red');
+      const victims = S.players.filter(p => p.status === 'idle');
+      if (victims.length && Math.random() < (guards.length ? 0.15 : 0.3)){
+        const v = pick(victims);
+        S.graves.push({name:v.name, cls:v.cls, lv:v.lv, day:S.day, where:'夜襲：被拖入黑暗', last:pick(SAY.dieLast)});
+        S.players = S.players.filter(x => x !== v);
+        S.players.forEach(x => x.morale = clamp(x.morale - 8, 0, 100));
+        log(`☠ ${v.name} 被拖咗入黑暗。第二朝淨係搵到一隻鞋。`, 'c-red');
+      }
+    }
+  }
+  const creep = Math.max(0, Math.min(4, 2 + Math.floor(S.day/12)) - guards.length - cleaners);
   S.cor = clamp(S.cor + creep, 0, 100);
   S.players.forEach(p => { if (p.status === 'idle') p.morale = clamp(p.morale + 1, 0, 100); });
   refillBoards();
@@ -524,7 +594,7 @@ function checkEnd(){
   if (S.over === 'win'){ endScreen(true); return; }
   if (S.cor >= 100){ S.over = 'lose'; save(); endScreen(false, '詭異吞噬咗整條村。你嘅名，最後一個記得嘅人都唔記得咗。'); return; }
   if (!S.players.length && !S.active.length && S.faith < summonCost()){
-    S.over = 'lose'; save(); endScreen(false, '再冇玩家，亦冇足夠信仰召喚新嘅。神殿嘅燭火熄咗。'); return;
+    S.over = 'lose'; save(); endScreen(false, '再冇玩家，亦冇足夠神力召喚新嘅。神殿嘅燭火熄咗。'); return;
   }
 }
 function endScreen(win, msg){
@@ -541,9 +611,9 @@ function endScreen(win, msg){
 /* ---------- 召喚 ---------- */
 function summon(){
   const c = summonCost();
-  if (S.faith < c || S.players.length >= 5) return;
+  if (S.faith < c || S.players.length >= MAXP) return;
   S.faith -= c; S.summons++;
-  const p = makePlayer();
+  const p = makePlayer('player');
   S.players.push(p);
   log(`✨ 召喚成功：${p.name}（${CLASSES[p.cls].n}・${TRAITS[p.trait].n}）登入咗。`, 'c-gold');
   log(`${p.name}：「哇，新手村建模好真！」`, 'c-dim');
@@ -551,6 +621,7 @@ function summon(){
 }
 
 /* ---------- 神殿場景 ---------- */
+let figPos = {};
 function templeSVG(){
   const div = S.div/100, cor = S.cor/100;
   const nCandle = clamp(Math.floor(S.faith/10), 0, 12);
@@ -566,6 +637,29 @@ function templeSVG(){
     `<g class="eye" style="animation-delay:-${i*0.9}s"><ellipse cx="${x-7}" cy="${y}" rx="4" ry="2.4" fill="#e0453a"/><ellipse cx="${x+7}" cy="${y}" rx="4" ry="2.4" fill="#e0453a"/></g>`).join('');
   const stars = [[395,48],[470,44],[420,70],[488,80],[440,95]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="1" fill="#fff" opacity=".7"/>`).join('');
   const dust = [380,410,440,470,505].map((x,i) => `<circle class="dust" style="animation-delay:-${i*1.8}s" cx="${x}" cy="${110+i*9}" r="1.3" fill="#ffe9b0"/>`).join('');
+  // 人物
+  const COL = {believer:'#6b4a2e',warrior:'#56708f',mage:'#5b3f86',rogue:'#3f4d3c',priest:'#b7a776',archer:'#4d6b3a'};
+  const home = S.players.filter(p => p.status === 'idle');
+  const spots = {worship:[[400,378],[345,380],[455,380],[290,382],[510,382],[235,384]], guard:[[190,342],[612,342],[92,346],[712,346]], clean:[[262,384],[548,386],[175,388],[660,388]]};
+  const used = {worship:0, guard:0, clean:0};
+  figPos = {};
+  const figures = home.map(p => {
+    const list = spots[p.job]; if (!list) return '';
+    const sp = list[used[p.job]++]; if (!sp) return '';
+    const [x,y] = sp, c = COL[p.cls] || '#555', hair = p.kind === 'believer' ? '#8a8a8a' : '#2a2018';
+    figPos[p.id] = [x, y-(p.job==='worship'?62:58)];
+    const label = `<text x="${x}" y="${y+12}" text-anchor="middle" font-size="10" fill="#bdb5c7" opacity=".8">${esc(p.name)}</text>`;
+    if (p.job === 'worship'){
+      const per = worshipPeriod(p).toFixed(2);
+      return `<g transform="translate(${x} ${y}) scale(1.4) translate(${-x} ${-y})"><g class="bow" style="animation-duration:${per}s"><path d="M${x-15} ${y} Q${x-17} ${y-22} ${x} ${y-27} Q${x+17} ${y-22} ${x+15} ${y}Z" fill="${c}"/><circle cx="${x}" cy="${y-33}" r="7.5" fill="${hair}"/></g>${label}</g>`;
+    }
+    if (p.job === 'guard'){
+      return `<g><g class="sway"><line x1="${x+12}" y1="${y-62}" x2="${x+12}" y2="${y}" stroke="#9a8f7a" stroke-width="2"/><path d="M${x+12} ${y-70} l4 9 h-8z" fill="#cfc6b0"/><path d="M${x-10} ${y} L${x-8} ${y-38} Q${x} ${y-44} ${x+8} ${y-38} L${x+10} ${y}Z" fill="${c}"/><circle cx="${x}" cy="${y-48}" r="7" fill="${hair}"/></g>${label}</g>`;
+    }
+    return `<g><path d="M${x-9} ${y} L${x-7} ${y-34} Q${x} ${y-40} ${x+7} ${y-34} L${x+9} ${y}Z" fill="${c}"/><circle cx="${x}" cy="${y-44}" r="7" fill="${hair}"/><g class="sweep"><line x1="${x+8}" y1="${y-26}" x2="${x+16}" y2="${y+2}" stroke="#8a6a3a" stroke-width="2.5"/><path d="M${x+11} ${y} l10 4 l0 -6z" fill="#b89a5a"/></g>${label}</g>`;
+  }).join('');
+  const dirt = 1 - S.clean/100;
+  const webs = `<g opacity="${(dirt*0.8).toFixed(2)}" stroke="#bdb5c7" stroke-width=".8" fill="none"><path d="M166 134 l-40 40 M166 134 l-20 48 M166 134 l-48 18 M138 148 q10 6 18 -4 M126 162 q16 8 28 -8"/><path d="M634 214 l34 34 M634 214 l14 44 M650 226 q-8 10 6 18"/></g>`;
   const hole = 'M372 62 L398 44 L425 55 L452 34 L488 50 L515 46 L508 78 L490 100 L462 92 L438 110 L410 96 L385 104 Z';
   return `<svg class="bg" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
   <defs>
@@ -590,6 +684,7 @@ function templeSVG(){
   <!-- 光柱 -->
   <polygon class="beam" points="385,100 505,90 520,340 300,340" fill="url(#beamG)"/>
   ${dust}
+  ${webs}
   <!-- 柱 -->
   <rect x="120" y="128" width="46" height="212" fill="#2a2532"/><rect x="112" y="122" width="62" height="12" fill="#332d3c"/><rect x="112" y="330" width="62" height="12" fill="#332d3c"/>
   <path d="M140 160 l8 30 l-6 22 l10 40" stroke="#0e0b12" stroke-width="2" fill="none"/>
@@ -625,6 +720,8 @@ function templeSVG(){
     <path d="M532 340 l10 6 l-4 10" stroke="#2a2531" fill="none"/>
   </g>
   ${candles}
+  ${figures}
+  <g id="fx"></g>
   ${eyes}
   <rect width="800" height="400" fill="#7a0d12" opacity="${(cor*0.22).toFixed(2)}" style="mix-blend-mode:multiply"/>
   <rect width="800" height="400" fill="url(#vig)"/>
@@ -644,7 +741,7 @@ function questCard(q){
   </div>`;
 }
 function playerCard(p){
-  const st = {idle:'<span class="c-green">閒置</span>', quest:'<span class="c-blue">任務中</span>', injured:`<span class="c-gold">受傷（${p.inj}日）</span>`}[p.status];
+  const st = {idle:`<span class="c-green">${JOBS[p.job].ic} ${JOBS[p.job].n}</span>`, quest:'<span class="c-blue">任務中</span>', injured:`<span class="c-gold">受傷（${p.inj}日）</span>`}[p.status];
   const mc = p.morale >= 60 ? 'var(--green)' : p.morale >= 30 ? 'var(--gold)' : 'var(--red)';
   return `<div class="pl">
     <div class="hd"><span class="nm">${CLASSES[p.cls].ic} ${esc(p.name)}</span><span>${st}</span></div>
@@ -654,6 +751,7 @@ function playerCard(p){
     <div class="mini"><i style="width:${p.exp/expNeed(p.lv)*100}%;background:var(--blue)"></i></div>
     <div class="row c-dim"><span>士氣</span><span>${p.morale}</span></div>
     <div class="mini"><i style="width:${p.morale}%;background:${mc}"></i></div>
+    <div style="margin-top:8px">${jobButtons(p)}</div>
   </div>`;
 }
 function renderPanel(){
@@ -663,15 +761,21 @@ function renderPanel(){
     P.innerHTML = `
       <div class="scene">
         ${templeSVG()}
-        <div class="scene-title serif">破落神殿<i class="info" tabindex="0" data-tip="屋頂穿咗，神像冇咗頭。呢度係你真正嘅身份。蠟燭代表你嘅信仰；神格越高，神像個頭就越重現；詭異越高，黑暗入面嘅眼就越多。">i</i></div>
+        <div class="scene-title serif">破落神殿<i class="info" tabindex="0" data-tip="屋頂穿咗，神像冇咗頭。呢度係你真正嘅身份。蠟燭代表你嘅神力；神格越高，神像個頭就越重現；詭異越高，黑暗入面嘅眼就越多。">i</i></div>
         <div class="scene-act">
-          <button class="primary" id="btnSummon" ${S.faith<c||S.players.length>=5?'disabled':''}>✨ 召喚（${c}）</button>
-          <span class="pill">🎮 ${S.players.length}/5<i class="info" tabindex="0" data-tip="同時最多 5 個玩家。召喚要用信仰，每召喚一次下次就貴 15。開局嗰 5 個係用你最後嘅神力召喚。">i</i></span>
+          <button class="primary" id="btnSummon" ${S.faith<c||S.players.length>=MAXP?'disabled':''}>✨ 召喚玩家（${c}）</button>
+          <span class="pill">👥 ${S.players.length}/${MAXP}<i class="info" tabindex="0" data-tip="神殿最多容納 ${MAXP} 人。召喚玩家要用神力，每召喚一次下次就貴 15。">i</i></span>
+        </div>
+        <div class="scene-stats">
+          <span class="pill">🧹 ${S.clean}%<i class="info" tabindex="0" data-tip="神殿整潔度。越乾淨，信徒膜拜得越快（每拜一次 +1 神力）。每日會變污糟 8，派人清潔先會回升。">i</i></span>
+          <span class="pill">🌾 ${S.players.filter(p=>p.status==='idle'&&p.job==='produce').length} 人耕田</span>
         </div>
       </div>
+      <div class="crew">${S.players.map(crewRow).join('')}</div>
       ${S.active.length ? `<div class="chips">${S.active.map(a => `<span class="chip" data-tip="${esc(a.party.map(id => getP(id)?.name || '?').join('、'))}">⚔️ ${esc(a.q.title)} <b>${a.left}日</b>${a.bless?' ✨':''}</span>`).join('')}</div>` : ''}
       ${S.graves.length ? `<div class="tombs">${S.graves.slice().reverse().map(g => `<div class="tomb ${g.left?'left':''}" tabindex="0" data-tip="${esc(`Lv${g.lv} ${CLASSES[g.cls].n}｜第 ${g.day} 日｜${g.where}\n「${g.last}」`)}">${g.left?'🚪':`<svg viewBox="0 0 40 44" width="34" height="38"><path d="M6 44V16a14 14 0 0 1 28 0v28z" fill="#3b3644" stroke="#55505e"/><path d="M20 12v14M14 18h12" stroke="#6d6678" stroke-width="2.5"/></svg>`}<span>${esc(g.name)}</span></div>`).join('')}</div>` : ''}`;
     const b = $('#btnSummon'); if (b) b.onclick = summon;
+    wt.clear();
     P.querySelectorAll('.tomb, .chip').forEach(bindTip);
   } else if (tab === 'village' || tab === 'guild'){
     const qs = S.quests.filter(q => q.board === tab);
@@ -681,8 +785,8 @@ function renderPanel(){
       + `<div class="grid">${qs.map(questCard).join('') || '<p class="c-dim">暫時冇委託。</p>'}</div>`;
     P.querySelectorAll('[data-go]').forEach(b => b.onclick = () => openDispatch(+b.dataset.go));
   } else if (tab === 'players'){
-    P.innerHTML = `<div class="role"><div class="ic">🎮</div><div><h3>玩家名冊</h3><p>佢哋叫你做「NPC」。佢哋會亂衝、會試錯、會死——而佢哋唔知道死咗就冇得重嚟。</p></div></div>
-      <div class="grid">${S.players.map(playerCard).join('') || '<p class="c-dim">一個玩家都冇。去神殿召喚啦。</p>'}</div>`;
+    P.innerHTML = `<div class="role"><div class="ic">👥</div><div><h3>人手名冊</h3><p>信徒知道你係神；玩家叫你做「NPC」。冇出任務嘅時候，可以安排佢哋膜拜、生產、清潔或者守衛。</p></div></div>
+      <div class="grid">${S.players.map(playerCard).join('') || '<p class="c-dim">一個人都冇。去神殿召喚啦。</p>'}</div>`;
   } else if (tab === 'wiki'){
     P.innerHTML = `<div class="role"><div class="ic">📖</div><div><h3>玩家論壇・攻略 Wiki</h3><p>玩家每次挑戰都會寫攻略，失敗學得仲多，死者嘅遺言最有用。攻略越高，該怪物嘅危險度越低（最多 −50%）。</p></div></div>
       <div class="grid">${MONS.filter(m => !m.boss || S.mainSpawned).map(m => `<div class="wiki">
@@ -693,10 +797,23 @@ function renderPanel(){
       </div>`).join('')}</div>`;
   }
   P.querySelectorAll('.info').forEach(bindTip);
+  P.querySelectorAll('[data-job]').forEach(b => b.onclick = () => {
+    const p = getP(+b.dataset.pid); if (!p || p.status !== 'idle') return;
+    p.job = b.dataset.job; save(); render();
+  });
+}
+function jobButtons(p){
+  if (p.status === 'quest') return '<div class="jobs"><span class="away c-blue">⚔️ 出緊任務</span></div>';
+  if (p.status === 'injured') return `<div class="jobs"><span class="away c-gold">🩹 受傷休養（${p.inj} 日）</span></div>`;
+  return '<div class="jobs">' + Object.entries(JOBS).map(([k,j]) => `<button class="${p.job===k?'on':''}" data-job="${k}" data-pid="${p.id}" title="${j.d}">${j.ic} ${j.n}</button>`).join('') + '</div>';
+}
+function crewRow(p){
+  return `<div class="crew-row"><span class="who">${CLASSES[p.cls].ic} <b>${esc(p.name)}</b> <span class="c-dim">Lv${p.lv}</span></span>${jobButtons(p)}</div>`;
 }
 function render(){
   $('#sDay').textContent = S.day;
   $('#sFaith').textContent = S.faith;
+  $('#sFood').textContent = S.food;
   $('#sDiv').textContent = S.div; $('#bDiv').style.width = S.div + '%';
   $('#sCor').textContent = S.cor; $('#bCor').style.width = S.cor + '%';
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
@@ -704,11 +821,40 @@ function render(){
   badge('#bgTemple', S.active.length);
   badge('#bgVillage', S.quests.filter(q => q.board === 'village').length);
   badge('#bgGuild', S.quests.filter(q => q.board === 'guild').length);
-  badge('#bgPlayers', S.players.filter(p => p.status === 'idle').length);
+  badge('#bgPlayers', 0);
   badge('#bgWiki', 0);
   $('#btnNext').disabled = !!S.over;
   renderPanel(); renderLog();
 }
+
+/* ---------- 即時膜拜 ---------- */
+const wt = new Map();
+let lastTs = performance.now(), saveAcc = 0;
+function popPlus(id){
+  if (tab !== 'temple') return;
+  const fx = document.getElementById('fx'), pos = figPos[id];
+  if (!fx || !pos) return;
+  const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  t.setAttribute('x', pos[0]); t.setAttribute('y', pos[1]); t.setAttribute('text-anchor', 'middle');
+  t.setAttribute('class', 'plus'); t.textContent = '+1';
+  fx.appendChild(t); setTimeout(() => t.remove(), 1250);
+}
+setInterval(() => {
+  const now = performance.now(), dt = Math.min(5, (now - lastTs)/1000); lastTs = now;
+  if (!S || S.over) return;
+  let gained = 0;
+  S.players.forEach(p => {
+    if (p.status !== 'idle' || p.job !== 'worship') return;
+    const per = worshipPeriod(p), t = (wt.get(p.id) || 0) + dt;
+    if (t >= per){ wt.set(p.id, t - per); S.faith++; gained++; popPlus(p.id); }
+    else wt.set(p.id, t);
+  });
+  if (gained){
+    $('#sFaith').textContent = S.faith;
+    const b = $('#btnSummon'); if (b) b.disabled = S.faith < summonCost() || S.players.length >= MAXP;
+    if (++saveAcc >= 5){ saveAcc = 0; save(); }
+  }
+}, 100);
 
 /* ---------- 彈窗 / 提示 ---------- */
 function openModal(){ $('#veil').classList.add('show'); }
@@ -746,6 +892,7 @@ function load(){
 /* ---------- 綁定 ---------- */
 document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { tab = b.dataset.tab; render(); $('#panel').scrollTop = 0; });
 $('#btnNext').onclick = nextDay;
+addEventListener('pagehide', save);
 $('#btnNew').onclick = () => { if (confirm('放棄呢局，重新開始？')) newGame(); };
 document.querySelectorAll('#top .info').forEach(bindTip);
 document.addEventListener('click', e => { if (!e.target.classList.contains('info')) hideTip(); });
