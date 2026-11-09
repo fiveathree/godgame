@@ -68,7 +68,7 @@ button.danger{background:#3a1515;border-color:#6d2a2a}
 .wiki{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
 .wiki ul{margin:6px 0 0;padding-left:18px;color:#cfc8bb;font-size:13px}
 /* temple scene */
-.scene{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;aspect-ratio:800/400;min-height:300px;background:#0b0a12}
+.scene{position:relative;width:100%;border:1px solid var(--line);border-radius:12px;overflow:hidden;aspect-ratio:800/400;min-height:300px;background:#0b0a12}
 .scene svg.bg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .scene-title{position:absolute;left:14px;top:10px;font-size:20px;color:var(--gold);text-shadow:0 2px 8px #000;letter-spacing:3px;display:flex;align-items:center;gap:4px}
 .scene-act{position:absolute;left:12px;top:46px;display:flex;gap:8px;align-items:center}
@@ -124,6 +124,7 @@ button.danger{background:#3a1515;border-color:#6d2a2a}
 .reveal{text-align:center;padding:4px 0 10px}
 .reveal .big{font:900 54px/1 "Noto Serif TC",serif;letter-spacing:4px}
 .big.C{color:#a8a8b4}.big.R{color:#6ab0f6}.big.SR{color:#c48ef8}.big.SSR{background:linear-gradient(90deg,#fff1a8,#f0b53a,#fff1a8);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 12px #f0c040aa)}
+@media (max-width:560px){.scene-stats{top:auto;bottom:10px}}
 @media (max-width:560px){.sheet{grid-template-columns:1fr}.sheet svg{max-width:220px;margin:0 auto;display:block}}
 /* info popover */
 .info{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1px solid var(--dim);color:var(--dim);font-size:11px;font-style:normal;cursor:help;position:relative;vertical-align:middle;margin-left:3px;outline:none;flex:none}
