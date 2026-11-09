@@ -882,7 +882,7 @@ function renderPanel(){
           <span class="pill">🌾 ${S.players.filter(p=>p.status==='idle'&&p.job==='produce').length} 人耕田</span>
         </div>
       </div>
-      <div class="crew">${S.players.map(crewRow).join('')}</div>
+      <div class="grid" style="margin-top:10px">${S.players.map(playerCard).join('')}</div>
       ${S.active.length ? `<div class="chips">${S.active.map(a => `<span class="chip" data-tip="${esc(a.party.map(id => getP(id)?.name || '?').join('、'))}">⚔️ ${esc(a.q.title)} <b>${a.left}日</b>${a.bless?' ✨':''}</span>`).join('')}</div>` : ''}
       ${S.graves.length ? `<div class="tombs">${S.graves.map((g,i) => [g,i]).reverse().map(([g,i]) => `<div class="tomb ${g.left?'left':''}" tabindex="0" data-grave="${i}" data-tip="${esc(`${g.snap ? '【'+g.snap.rar+'】' : ''}Lv${g.lv} ${CLASSES[g.cls].n}｜第 ${g.day} 日｜${g.where}\n「${g.last}」${g.snap ? '\n撳一下睇角色／復活（'+reviveCost(g)+' 神力）' : '\n已經返咗原本嘅世界'}`)}">${g.left?'🚪':`<svg viewBox="0 0 40 44" width="34" height="38"><path d="M6 44V16a14 14 0 0 1 28 0v28z" fill="#3b3644" stroke="#55505e"/><path d="M20 12v14M14 18h12" stroke="#6d6678" stroke-width="2.5"/></svg>`}<span>${esc(g.name)}</span></div>`).join('')}</div>` : ''}`;
     const b = $('#btnSummon'); if (b) b.onclick = summon;
