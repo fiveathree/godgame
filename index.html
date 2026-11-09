@@ -107,6 +107,24 @@ button.danger{background:#3a1515;border-color:#6d2a2a}
 .jobs button.on{border-color:var(--gold);background:#2a2316;color:var(--gold)}
 .jobs .away{grid-column:1/-1;text-align:center;font-size:12px;padding:4px 0}
 @media (max-width:520px){.crew-row{grid-template-columns:1fr}}
+.rar{display:inline-block;font:800 11px/16px system-ui;padding:0 6px;border-radius:4px;letter-spacing:.5px;vertical-align:middle;color:#111}
+.rar-C{background:#8e8e9a}.rar-R{background:#5aa0e6}.rar-SR{background:#b17be8}
+.rar-SSR{background:linear-gradient(90deg,#f7d774,#e8a93a,#f7d774);box-shadow:0 0 8px #f0c04088}
+.pl.r-SSR{border-color:#a8822a;box-shadow:0 0 14px #f0c04033}.pl.r-SR{border-color:#5d3f80}.pl.r-R{border-color:#2d4f73}
+.who-btn{cursor:pointer}.who-btn:hover b{color:var(--gold);text-decoration:underline}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.sk{font-size:11px;padding:1px 7px;border-radius:10px;border:1px solid #4a3a6a;background:#2a2238;color:#d6c4f5;cursor:help;outline:none}
+.ab{font-size:11px;padding:1px 7px;border-radius:10px;border:1px solid #2f5a3a;background:#1d2e22;color:#bfe8c7;cursor:help;outline:none}
+.sixline{display:grid;grid-template-columns:repeat(6,1fr);gap:2px;margin-top:6px;font-size:11px;text-align:center;color:var(--dim)}
+.sixline b{display:block;color:var(--txt);font-size:13px}
+.sheet{display:grid;grid-template-columns:220px 1fr;gap:12px;align-items:start}
+.statrow span{white-space:nowrap}
+.statrow{display:grid;grid-template-columns:58px 26px 1fr 86px;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid #ffffff0a}
+.statrow button{padding:3px 0;font-size:12px}
+.reveal{text-align:center;padding:4px 0 10px}
+.reveal .big{font:900 54px/1 "Noto Serif TC",serif;letter-spacing:4px}
+.big.C{color:#a8a8b4}.big.R{color:#6ab0f6}.big.SR{color:#c48ef8}.big.SSR{background:linear-gradient(90deg,#fff1a8,#f0b53a,#fff1a8);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 12px #f0c040aa)}
+@media (max-width:560px){.sheet{grid-template-columns:1fr}.sheet svg{max-width:220px;margin:0 auto;display:block}}
 /* info popover */
 .info{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1px solid var(--dim);color:var(--dim);font-size:11px;font-style:normal;cursor:help;position:relative;vertical-align:middle;margin-left:3px;outline:none;flex:none}
 .info:hover,.info:focus{color:var(--gold);border-color:var(--gold)}
@@ -206,6 +224,46 @@ const JOBS = {
   clean:  {n:'清潔',ic:'🧹',d:'打掃神殿，每人每日整潔 +20、詭異 −1。'},
   guard:  {n:'守衛',ic:'🛡️',d:'夜晚守住神殿。詭異會派嘢嚟夜襲，冇人守就可能有人被拖走。每個守衛令詭異每日少升 1。'},
 };
+const STATS = [
+  {k:'str',n:'力量',d:'物理傷害。戰士、刺客嘅主屬性。'},
+  {k:'agi',n:'敏捷',d:'速度同閃避。弓手、刺客嘅主屬性；會降低死亡率。'},
+  {k:'con',n:'體質',d:'生命力。最能降低死亡率；戰士、牧師嘅副屬性。'},
+  {k:'int',n:'智力',d:'法術威力。法師、牧師嘅主屬性；寫攻略更快。'},
+  {k:'per',n:'感知',d:'察覺危險。降低任務實際危險度，加快攻略進度。'},
+  {k:'luk',n:'幸運',d:'提升任務成功率。'},
+];
+const STAT_MAX = 30;
+const MAINSTAT = {warrior:['str','con'], mage:['int','per'], rogue:['agi','str'], priest:['int','con'], archer:['agi','per'], believer:['con','per']};
+const RARITY = {
+  C:  {w:55, lo:3,  hi:7,  sk:1, ab:1, rev:0},
+  R:  {w:30, lo:5,  hi:9,  sk:1, ab:1, rev:20},
+  SR: {w:12, lo:7,  hi:12, sk:2, ab:1, rev:60},
+  SSR:{w:3,  lo:10, hi:15, sk:2, ab:2, rev:120},
+};
+const SKILLS = {
+  taunt:   {n:'挑釁',   d:'吸引火力：同隊其他人死亡率 ×0.8'},
+  burst:   {n:'爆發',   d:'自身戰力 +25%'},
+  heal:    {n:'治癒術', d:'全隊死亡率 ×0.75'},
+  dodge:   {n:'殘影閃避',d:'自身死亡率 ×0.55'},
+  scout:   {n:'偵察',   d:'任務實際危險度 −10%'},
+  backstab:{n:'背刺',   d:'隊伍 2 人或以下時，自身戰力 +40%'},
+  undying: {n:'不死身', d:'受到致命一擊時有 60% 機會撐住，變成重傷'},
+  rally:   {n:'鼓舞',   d:'全隊戰力 +10%'},
+  speed:   {n:'速攻',   d:'任務所需日數 −1（最少 1 日）'},
+  loot:    {n:'掠奪',   d:'任務賞金 +25%'},
+  pray:    {n:'祈禱',   d:'全隊死亡率 ×0.85（信徒專屬）'},
+};
+const ABILITIES = {
+  farmer:  {n:'種田達人',d:'生產時糧食額外 +3'},
+  tidy:    {n:'潔癖',    d:'清潔時整潔額外 +15'},
+  nighteye:{n:'夜眼',    d:'守衛時戰力 ×2'},
+  zeal:    {n:'狂信',    d:'膜拜速度 ×1.5'},
+  learner: {n:'學霸',    d:'獲得經驗 ×1.5'},
+  tithe:   {n:'吸金體質',d:'每日神力 +3'},
+  regen:   {n:'再生',    d:'受傷即日復原'},
+  iron:    {n:'鐵胃',    d:'唔使食嘢'},
+  chosen:  {n:'天選之人',d:'幸運效果雙倍'},
+};
 const BELIEVER_NAMES = ['阿福','何婆','細牛','老鐘','阿蘭','石頭','跛腳陳','啞妹'];
 const MONS = [
   {id:'faceless',n:'無面村民',d:'白天同你打招呼，夜晚塊面唔見咗'},
@@ -235,25 +293,54 @@ const SAY = {
 
 /* ---------- 狀態 ---------- */
 let S, tab = 'temple', pendingReports = [];
-const SAVE_KEY = 'fallengod-save-v2';
+const SAVE_KEY = 'fallengod-save-v3';
 
 function makePlayer(kind){
   const used = new Set(S.players.map(p => p.name).concat(S.graves.map(g => g.name)));
   let name, tries = 0;
   if (kind === 'believer'){
     do { name = pick(BELIEVER_NAMES); tries++; } while (used.has(name) && tries < 50);
-    return {id:S.uid++, name, cls:'believer', trait:'devout', kind, job:'worship', lv:1, exp:0, morale:90, status:'idle', inj:0, done:0, joined:S.day};
+    return {id:S.uid++, name, cls:'believer', trait:'devout', kind, rar:'C', st:rollStats('believer','C'),
+      skills:['pray'], abil:[pick(['farmer','tidy','iron','zeal'])],
+      job:'worship', lv:1, exp:0, morale:90, status:'idle', inj:0, done:0, joined:S.day};
   }
   do { name = pick(NAME_A) + pick(NAME_B); tries++; } while (used.has(name) && tries < 50);
   const cls = pick(Object.keys(CLASSES).filter(c => c !== 'believer'));
   const trait = pick(Object.keys(TRAITS).filter(t => t !== 'devout'));
-  return {id:S.uid++, name, cls, trait, kind:'player', job:'worship', lv:1, exp:0, morale:70, status:'idle', inj:0, done:0, joined:S.day};
+  const rar = rollRarity(), RR = RARITY[rar];
+  return {id:S.uid++, name, cls, trait, kind:'player', rar, st:rollStats(cls, rar),
+    skills:sample(Object.keys(SKILLS).filter(k => k !== 'pray'), RR.sk), abil:sample(Object.keys(ABILITIES), RR.ab),
+    job:'worship', lv:1, exp:0, morale:70, status:'idle', inj:0, done:0, joined:S.day};
 }
-function power(p){ return CLASSES[p.cls].base + (p.lv-1)*7; }
+function sample(arr, n){ const a = arr.slice(), out = []; while (out.length < n && a.length) out.push(a.splice(Math.floor(Math.random()*a.length), 1)[0]); return out; }
+function rollRarity(){ let r = Math.random()*100; for (const [k,v] of Object.entries(RARITY)){ if ((r -= v.w) < 0) return k; } return 'C'; }
+function rollStats(cls, rar){
+  const RR = RARITY[rar], st = {};
+  STATS.forEach(x => st[x.k] = R(RR.lo, RR.hi));
+  const [m, s2] = MAINSTAT[cls]; st[m] = Math.min(STAT_MAX, st[m]+3); st[s2] = Math.min(STAT_MAX, st[s2]+1);
+  return st;
+}
+const hasSk = (p,k) => p.skills && p.skills.includes(k);
+const hasAb = (p,k) => p.abil && p.abil.includes(k);
+const lukOf = p => p.st.luk * (hasAb(p,'chosen') ? 2 : 1);
+function power(p){ const [m, s2] = MAINSTAT[p.cls]; return Math.round(CLASSES[p.cls].base*0.5 + p.st[m] + p.st[s2]*0.5 + (p.lv-1)*4); }
+function addExp(p, n, quiet){
+  p.exp += Math.round(n * (hasAb(p,'learner') ? 1.5 : 1));
+  while (p.exp >= expNeed(p.lv)){
+    p.exp -= expNeed(p.lv); p.lv++;
+    const m = MAINSTAT[p.cls][0], r = pick(STATS).k;
+    p.st[m] = Math.min(STAT_MAX, p.st[m]+1); p.st[r] = Math.min(STAT_MAX, p.st[r]+1);
+    if (!quiet) log(`⬆ ${p.name} 升到 Lv${p.lv}！${STATS.find(x=>x.k===m).n} +1，${STATS.find(x=>x.k===r).n} +1`, 'c-green');
+  }
+}
+function statCost(p, k){ return 10 + p.st[k]*3; }
+function reviveCost(g){ return 40 + g.snap.lv*15 + RARITY[g.snap.rar].rev; }
+const rarBadge = r => `<span class="rar rar-${r}">${r}</span>`;
+const snap = p => JSON.parse(JSON.stringify(p));
 function expNeed(lv){ return lv*25; }
 const MAXP = 6;
 function summonCost(){ return 30 + S.summons*15; }
-function worshipPeriod(p){ return (5 - 2*S.clean/100) * (p.trait === 'devout' ? 0.67 : 1); }
+function worshipPeriod(p){ return (5 - 2*S.clean/100) * (p.trait === 'devout' ? 0.67 : 1) * (hasAb(p,'zeal') ? 0.67 : 1); }
 function getP(id){ return S.players.find(p => p.id === id); }
 
 function genQuest(board){
@@ -310,16 +397,23 @@ function renderLog(){
 /* ---------- 估算 ---------- */
 function estimate(q, party, bless){
   const intel = S.intel[q.mon] || 0;
-  const effDanger = q.danger * (1 - intel/100*0.5);
+  const maxPer = party.reduce((m,p) => Math.max(m, p.st.per), 0);
+  let effDanger = q.danger * (1 - intel/100*0.5) * (1 - Math.min(0.15, maxPer*0.006));
+  if (party.some(p => hasSk(p,'scout'))) effDanger *= 0.9;
   let pow = 0, luck = 0;
   const hasPriest = party.some(p => p.cls === 'priest');
   party.forEach(p => {
     let x = power(p) * (0.8 + p.morale/250);
     if (p.trait === 'reckless') x *= 1.15;
     if (p.trait === 'cautious') x *= 0.9;
-    if (p.trait === 'lucky') luck = 0.08;
+    if (p.trait === 'lucky') luck += 0.08;
+    if (hasSk(p,'burst')) x *= 1.25;
+    if (hasSk(p,'backstab') && party.length <= 2) x *= 1.4;
+    luck += lukOf(p) * 0.003;
     pow += x;
   });
+  if (party.some(p => hasSk(p,'rally'))) pow *= 1.1;
+  luck = Math.min(luck, 0.2);
   const ratio = pow / Math.max(1, effDanger);
   const succ = party.length ? clamp(1/(1+Math.exp(-4.5*(ratio-1))) + luck, 0.03, 0.97) : 0;
   const risk = {};
@@ -330,6 +424,11 @@ function estimate(q, party, bless){
     if (p.trait === 'cautious') r *= 0.5;
     if (hasPriest && p.cls !== 'priest') r *= 0.7;
     if (bless) r *= 0.5;
+    r *= 1 - Math.min(0.45, (p.st.con*1.2 + p.st.agi*0.8)/100);
+    if (hasSk(p,'dodge')) r *= 0.55;
+    if (party.some(o => o !== p && hasSk(o,'taunt'))) r *= 0.8;
+    if (party.some(o => hasSk(o,'heal'))) r *= 0.75;
+    if (party.some(o => hasSk(o,'pray'))) r *= 0.85;
     risk[p.id] = clamp(r, 0.01, 0.6);
   });
   // 綜合死亡率（成功 ×1，失敗 ×1.8）
@@ -354,11 +453,11 @@ function openDispatch(qid){
         <div><span class="c-dim">隊伍戰力</span><b>${Math.round(e.pow)}</b></div>
         <div><span class="c-dim">實際危險度</span><b>${Math.round(e.effDanger)}</b></div>
       </div>
-      <div class="section" style="margin-top:6px">揀隊員（${sel.size}/5）<i class="info" tabindex="0" data-tip="右邊係每個人今次嘅綜合死亡率。死咗就永久消失，佢哋唔會復活。失敗時死亡率會高好多。">i</i></div>
+      <div class="section" style="margin-top:6px">揀隊員（${sel.size}/5）<i class="info" tabindex="0" data-tip="右邊係每個人今次嘅綜合死亡率。死咗就會變成墓碑，要用神力先救得返。失敗時死亡率會高好多。">i</i></div>
       ${idle.length ? idle.map(p => `
         <label class="pick ${sel.has(p.id)?'sel':''}" data-id="${p.id}">
           <input type="checkbox" ${sel.has(p.id)?'checked':''}>
-          <span>${CLASSES[p.cls].ic} <b>${esc(p.name)}</b> <span class="c-dim">Lv${p.lv}</span> <span class="${TRAITS[p.trait].c}">${TRAITS[p.trait].n}</span><br><span class="c-dim" style="font-size:12px">戰力 ${power(p)}｜士氣 ${p.morale}</span></span>
+          <span>${rarBadge(p.rar)} ${CLASSES[p.cls].ic} <b>${esc(p.name)}</b> <span class="c-dim">Lv${p.lv}</span> <span class="${TRAITS[p.trait].c}">${TRAITS[p.trait].n}</span><br><span class="c-dim" style="font-size:12px">戰力 ${power(p)}｜士氣 ${p.morale}</span></span>
           <span class="risk">${sel.has(p.id) ? `死亡率<br><b class="${e.total[p.id]>.25?'c-red':e.total[p.id]>.1?'c-gold':'c-green'}">${pct(e.total[p.id])}</b>` : ''}</span>
         </label>`).join('') : '<p class="c-dim">冇閒置嘅玩家。佢哋全部出咗去，或者……</p>'}
       <label class="pick ${bless?'sel':''}" id="blessRow" style="margin-top:10px">
@@ -378,7 +477,8 @@ function openDispatch(qid){
       if (bless) S.faith -= 20;
       party.forEach(p => p.status = 'quest');
       S.quests = S.quests.filter(x => x.id !== q.id);
-      S.active.push({id:S.uid++, q, party:party.map(p => p.id), left:q.days, bless});
+      const days = party.some(p => hasSk(p,'speed')) ? Math.max(1, q.days-1) : q.days;
+      S.active.push({id:S.uid++, q, party:party.map(p => p.id), left:days, bless});
       const talker = pick(party);
       log(`派出 ${party.map(p=>p.name).join('、')} 前往「${q.title}」。`, 'c-blue');
       log(`${talker.name}：「${pick(SAY.go)}」`, 'c-dim');
@@ -395,12 +495,16 @@ function resolve(a){
   const e = estimate(q, party, a.bless);
   const ok = Math.random() < e.succ;
   const lines = [], dead = [];
+  const saved = [];
   party.forEach(p => {
     const r = ok ? e.risk[p.id] : clamp(e.risk[p.id]*1.8, 0, 0.9);
-    if (Math.random() < r) dead.push(p);
+    if (Math.random() < r){
+      if (hasSk(p,'undying') && Math.random() < 0.6) saved.push(p); else dead.push(p);
+    }
   });
+  const reward = Math.round(q.reward * (party.some(p => hasSk(p,'loot')) ? 1.25 : 1));
   // 攻略：試錯越多學得越多
-  const wikiMult = party.some(p => p.trait === 'wiki') ? 1.5 : 1;
+  const wikiMult = (party.some(p => p.trait === 'wiki') ? 1.5 : 1) * (1 + party.reduce((m,p) => Math.max(m, p.st.int + p.st.per), 0)/80);
   let gain = (ok ? 8 : 18) + dead.length*15;
   gain = Math.round(gain * wikiMult);
   const before = S.intel[q.mon];
@@ -414,7 +518,7 @@ function resolve(a){
     const last = pick(SAY.dieLast);
     const tip = `${p.name} 嘅遺言：「${last}」`;
     S.wiki[q.mon].push(tip);
-    S.graves.push({name:p.name, cls:p.cls, lv:p.lv, day:S.day, where:q.title, last});
+    S.graves.push({name:p.name, cls:p.cls, lv:p.lv, day:S.day, where:q.title, last, snap:snap(p)});
     lines.push(`<p class="c-red">☠ ${esc(p.name)}（Lv${p.lv} ${CLASSES[p.cls].n}）倒下咗，冇再起身。<br><span class="c-dim">最後一句：「${esc(last)}」</span></p>`);
     log(`☠ ${p.name} 喺「${q.title}」死亡。佢唔會再上線。`, 'c-red');
   });
@@ -427,7 +531,9 @@ function resolve(a){
   }
   if (gain) lines.push(`<p class="c-purple">📖 ${MON[q.mon].n} 攻略 +${S.intel[q.mon]-before}%（${ok?'實戰經驗':'失敗都係經驗'}${dead.length?'；用命換返嚟嘅情報':''}）</p>`);
 
+  saved.forEach(p => lines.push(`<p class="c-gold">🩸 ${esc(p.name)} 中咗致命一擊，但「不死身」令佢撐住咗。</p>`));
   alive.forEach(p => { p.status = 'idle'; p.done++; });
+  saved.forEach(p => { if (alive.includes(p)){ p.status = 'injured'; p.inj = 3; } });
   if (ok){
     S.cor = clamp(S.cor - q.tier*3, 0, 100);
     S.div = clamp(S.div + q.tier*2 + (q.main?50:0), 0, 100);
@@ -435,12 +541,13 @@ function resolve(a){
     log(`「${q.title}」完成。神格 +${q.tier*2}。`, 'c-green');
   } else {
     S.cor = clamp(S.cor + q.tier*2, 0, 100);
-    alive.forEach(p => { p.inj = R(1,2); p.status = 'injured'; });
+    alive.forEach(p => { p.inj = Math.max(p.inj||0, R(1,2)); p.status = 'injured'; });
     log(`「${q.title}」失敗，詭異 +${q.tier*2}。生還者受傷休養。`, 'c-gold');
   }
   if (q.main && ok) S.over = 'win';
   if (q.main && !ok){ S.quests.unshift({...q, id:S.uid++}); log('空白神座上嘅嘢仲坐喺度。委託書重新出現喺櫃台。', 'c-red'); }
-  pendingReports.push({q, ok, lines, alive:alive.map(p => p.id), dead:dead.length});
+  if (reward > q.reward && ok) lines.push(`<p class="c-gold">💰 掠奪：賞金 ${q.reward} → ${reward}</p>`);
+  pendingReports.push({q, ok, lines, reward, alive:alive.map(p => p.id), dead:dead.length});
 }
 
 function showReport(rep){
@@ -450,8 +557,8 @@ function showReport(rep){
     $('#mHead').innerHTML = `<h2>${rep.ok?'🏆':'💀'} ${esc(rep.q.title)}</h2><div class="sub">任務報告｜${MON[rep.q.mon].n}</div>`;
     let html = `<div class="lines">${rep.lines.join('')}</div>`;
     if (rep.ok && alive.length){
-      const each = Math.floor(rep.q.reward * share/100 / alive.length);
-      const mine = rep.q.reward - each*alive.length;
+      const each = Math.floor(rep.reward * share/100 / alive.length);
+      const mine = rep.reward - each*alive.length;
       html += `<div class="share">
         <div class="row"><b>分賞金俾玩家 <i class="info" tabindex="0" data-tip="分得越多，玩家升級越快、越開心。留低嘅就係你嘅神力。分得太少會打擊士氣；貪婪嘅玩家要 60% 以上先滿意。士氣跌到好低，玩家會直接退遊。">i</i></b><b class="c-gold">${share}%</b></div>
         <input type="range" id="shareR" min="0" max="100" step="5" value="${share}">
@@ -462,7 +569,7 @@ function showReport(rep){
         }).join('')}
       </div>`;
     } else if (rep.ok){
-      html += `<p class="c-dim">冇人生還去領賞。賞金 ${rep.q.reward} 全數歸你。</p>`;
+      html += `<p class="c-dim">冇人生還去領賞。賞金 ${rep.reward} 全數歸你。</p>`;
     }
     $('#mBody').innerHTML = html;
     $('#mFoot').innerHTML = `<button class="primary" id="mOk">${rep.ok&&alive.length?'確認分配':'知道'}</button>`;
@@ -470,15 +577,14 @@ function showReport(rep){
     $('#mOk').onclick = () => {
       if (rep.ok){
         if (alive.length){
-          const each = Math.floor(rep.q.reward * share/100 / alive.length);
-          S.faith += rep.q.reward - each*alive.length;
+          const each = Math.floor(rep.reward * share/100 / alive.length);
+          S.faith += rep.reward - each*alive.length;
           alive.forEach(p => {
             p.morale = clamp(p.morale + moraleDelta(p, share), 0, 100);
-            p.exp += each;
-            while (p.exp >= expNeed(p.lv)){ p.exp -= expNeed(p.lv); p.lv++; log(`⬆ ${p.name} 升到 Lv${p.lv}！`, 'c-green'); }
+            addExp(p, each);
           });
-          log(`分出 ${share}% 賞金，收回 ${rep.q.reward - each*alive.length} 神力。`, 'c-gold');
-        } else S.faith += rep.q.reward;
+          log(`分出 ${share}% 賞金，收回 ${rep.reward - each*alive.length} 神力。`, 'c-gold');
+        } else S.faith += rep.reward;
       }
       checkLeavers();
       closeModal(); save(); render(); nextReport();
@@ -513,7 +619,7 @@ function nextDay(){
   S.active = S.active.filter(a => a.left > 0);
   finished.forEach(resolve);
   // 傷患
-  S.players.forEach(p => { if (p.status === 'injured' && --p.inj <= 0) p.status = 'idle'; });
+  S.players.forEach(p => { if (p.status === 'injured' && (--p.inj <= 0 || hasAb(p,'regen'))){ p.status = 'idle'; p.inj = 0; } });
   // 莽撞玩家自己去試錯
   S.players.filter(p => p.status === 'idle' && p.trait === 'reckless').forEach(p => {
     if (Math.random() > 0.3) return;
@@ -524,14 +630,13 @@ function nextDay(){
       const last = pick(SAY.dieLast);
       S.intel[m.id] = Math.min(100, S.intel[m.id] + 15);
       S.wiki[m.id].push(`${p.name}（單人試錯）嘅遺言：「${last}」`);
-      S.graves.push({name:p.name, cls:p.cls, lv:p.lv, day:S.day, where:'單人試錯：'+m.n, last});
+      S.graves.push({name:p.name, cls:p.cls, lv:p.lv, day:S.day, where:'單人試錯：'+m.n, last, snap:snap(p)});
       S.players = S.players.filter(x => x !== p);
       S.players.forEach(x => x.morale = clamp(x.morale - 6, 0, 100));
       log(`☠ ${p.name} 冇返嚟。但佢死前喺論壇留低咗 ${m.n} 嘅情報（攻略 +15%）。`, 'c-red');
     } else {
       S.intel[m.id] = Math.min(100, S.intel[m.id] + 6);
-      p.exp += 6;
-      while (p.exp >= expNeed(p.lv)){ p.exp -= expNeed(p.lv); p.lv++; }
+      addExp(p, 6);
       S.wiki[m.id].push(`${p.name}：「${pick(['佢怕光','唔好望佢對眼','佢只會攻擊郁緊嘅嘢','喺佢背後行就安全','佢會扮你隊友把聲'])}」`);
       log(`${p.name} 試錯回來，${m.n} 攻略 +6%。`, 'c-purple');
     }
@@ -546,10 +651,11 @@ function nextDay(){
   const home = S.players.filter(p => p.status === 'idle');
   const onJob = j => home.filter(p => p.job === j);
   const streamers = S.players.filter(p => p.trait === 'streamer').length;
-  if (streamers) S.faith += streamers*3;
+  const tithers = S.players.filter(p => hasAb(p,'tithe')).length;
+  if (streamers || tithers) S.faith += streamers*3 + tithers*3;
   // 生產 / 食飯
-  const grown = onJob('produce').reduce((t,p) => t + (p.kind === 'believer' ? 4 : 3), 0);
-  S.food += grown - S.players.length;
+  const grown = onJob('produce').reduce((t,p) => t + (p.kind === 'believer' ? 4 : 3) + (hasAb(p,'farmer') ? 3 : 0), 0);
+  S.food += grown - S.players.filter(p => !hasAb(p,'iron')).length;
   if (grown) log(`🌾 田裡收成 +${grown} 糧食。`, 'c-green');
   if (S.food < 0){
     S.food = 0;
@@ -558,14 +664,14 @@ function nextDay(){
   }
   // 清潔
   const cleaners = onJob('clean').length;
-  S.clean = clamp(S.clean - 8 + cleaners*20, 0, 100);
+  S.clean = clamp(S.clean - 8 + cleaners*20 + onJob('clean').filter(p => hasAb(p,'tidy')).length*15, 0, 100);
   // 守衛 / 夜襲
   const guards = onJob('guard');
   if (Math.random() < S.cor/120 && S.players.length){
     const threat = Math.round(S.cor/2 + R(0,15));
-    const gp = guards.reduce((t,p) => t + power(p), 0);
+    const gp = guards.reduce((t,p) => t + power(p) * (hasAb(p,'nighteye') ? 2 : 1), 0);
     if (guards.length && gp >= threat){
-      guards.forEach(p => { p.exp += 5; while (p.exp >= expNeed(p.lv)){ p.exp -= expNeed(p.lv); p.lv++; } });
+      guards.forEach(p => addExp(p, 5));
       log(`🌙 半夜有嘢爬入神殿（威脅 ${threat}），被 ${guards.map(p=>p.name).join('、')} 趕走咗。`, 'c-green');
     } else {
       const lost = Math.floor(S.faith*0.2);
@@ -574,7 +680,7 @@ function nextDay(){
       const victims = S.players.filter(p => p.status === 'idle');
       if (victims.length && Math.random() < (guards.length ? 0.15 : 0.3)){
         const v = pick(victims);
-        S.graves.push({name:v.name, cls:v.cls, lv:v.lv, day:S.day, where:'夜襲：被拖入黑暗', last:pick(SAY.dieLast)});
+        S.graves.push({name:v.name, cls:v.cls, lv:v.lv, day:S.day, where:'夜襲：被拖入黑暗', last:pick(SAY.dieLast), snap:snap(v)});
         S.players = S.players.filter(x => x !== v);
         S.players.forEach(x => x.morale = clamp(x.morale - 8, 0, 100));
         log(`☠ ${v.name} 被拖咗入黑暗。第二朝淨係搵到一隻鞋。`, 'c-red');
@@ -615,9 +721,10 @@ function summon(){
   S.faith -= c; S.summons++;
   const p = makePlayer('player');
   S.players.push(p);
-  log(`✨ 召喚成功：${p.name}（${CLASSES[p.cls].n}・${TRAITS[p.trait].n}）登入咗。`, 'c-gold');
-  log(`${p.name}：「哇，新手村建模好真！」`, 'c-dim');
+  log(`✨ 召喚成功：【${p.rar}】${p.name}（${CLASSES[p.cls].n}・${TRAITS[p.trait].n}）登入咗。`, p.rar === 'SSR' ? 'c-gold' : p.rar === 'SR' ? 'c-purple' : 'c-blue');
+  log(`${p.name}：「${p.rar === 'SSR' ? '出 SSR 啦！！呢個帳號值錢喇' : p.rar === 'C' ? '吓，C 卡？可唔可以 reroll？' : '哇，新手村建模好真！'}」`, 'c-dim');
   save(); render();
+  openSheet(p.id, {summoned:true});
 }
 
 /* ---------- 神殿場景 ---------- */
@@ -743,10 +850,12 @@ function questCard(q){
 function playerCard(p){
   const st = {idle:`<span class="c-green">${JOBS[p.job].ic} ${JOBS[p.job].n}</span>`, quest:'<span class="c-blue">任務中</span>', injured:`<span class="c-gold">受傷（${p.inj}日）</span>`}[p.status];
   const mc = p.morale >= 60 ? 'var(--green)' : p.morale >= 30 ? 'var(--gold)' : 'var(--red)';
-  return `<div class="pl">
-    <div class="hd"><span class="nm">${CLASSES[p.cls].ic} ${esc(p.name)}</span><span>${st}</span></div>
+  return `<div class="pl r-${p.rar}">
+    <div class="hd"><span class="nm who-btn" data-sheet="${p.id}">${rarBadge(p.rar)} ${CLASSES[p.cls].ic} <b>${esc(p.name)}</b></span><span>${st}</span></div>
     <div class="row"><span>Lv${p.lv} ${CLASSES[p.cls].n}<i class="info" tabindex="0" data-tip="${CLASSES[p.cls].d}">i</i></span><span class="${TRAITS[p.trait].c}">${TRAITS[p.trait].n}<i class="info" tabindex="0" data-tip="${TRAITS[p.trait].d}">i</i></span></div>
     <div class="row"><span>戰力 <b>${power(p)}</b></span><span class="c-dim">完成 ${p.done} 次</span></div>
+    <div class="sixline">${STATS.map(x => `<span>${x.n}<b>${p.st[x.k]}</b></span>`).join('')}</div>
+    ${tagsHtml(p)}
     <div class="row c-dim" style="margin-top:6px"><span>EXP</span><span>${p.exp}/${expNeed(p.lv)}</span></div>
     <div class="mini"><i style="width:${p.exp/expNeed(p.lv)*100}%;background:var(--blue)"></i></div>
     <div class="row c-dim"><span>士氣</span><span>${p.morale}</span></div>
@@ -773,7 +882,7 @@ function renderPanel(){
       </div>
       <div class="crew">${S.players.map(crewRow).join('')}</div>
       ${S.active.length ? `<div class="chips">${S.active.map(a => `<span class="chip" data-tip="${esc(a.party.map(id => getP(id)?.name || '?').join('、'))}">⚔️ ${esc(a.q.title)} <b>${a.left}日</b>${a.bless?' ✨':''}</span>`).join('')}</div>` : ''}
-      ${S.graves.length ? `<div class="tombs">${S.graves.slice().reverse().map(g => `<div class="tomb ${g.left?'left':''}" tabindex="0" data-tip="${esc(`Lv${g.lv} ${CLASSES[g.cls].n}｜第 ${g.day} 日｜${g.where}\n「${g.last}」`)}">${g.left?'🚪':`<svg viewBox="0 0 40 44" width="34" height="38"><path d="M6 44V16a14 14 0 0 1 28 0v28z" fill="#3b3644" stroke="#55505e"/><path d="M20 12v14M14 18h12" stroke="#6d6678" stroke-width="2.5"/></svg>`}<span>${esc(g.name)}</span></div>`).join('')}</div>` : ''}`;
+      ${S.graves.length ? `<div class="tombs">${S.graves.map((g,i) => [g,i]).reverse().map(([g,i]) => `<div class="tomb ${g.left?'left':''}" tabindex="0" data-grave="${i}" data-tip="${esc(`${g.snap ? '【'+g.snap.rar+'】' : ''}Lv${g.lv} ${CLASSES[g.cls].n}｜第 ${g.day} 日｜${g.where}\n「${g.last}」${g.snap ? '\n撳一下睇角色／復活（'+reviveCost(g)+' 神力）' : '\n已經返咗原本嘅世界'}`)}">${g.left?'🚪':`<svg viewBox="0 0 40 44" width="34" height="38"><path d="M6 44V16a14 14 0 0 1 28 0v28z" fill="#3b3644" stroke="#55505e"/><path d="M20 12v14M14 18h12" stroke="#6d6678" stroke-width="2.5"/></svg>`}<span>${esc(g.name)}</span></div>`).join('')}</div>` : ''}`;
     const b = $('#btnSummon'); if (b) b.onclick = summon;
     wt.clear();
     P.querySelectorAll('.tomb, .chip').forEach(bindTip);
@@ -785,7 +894,7 @@ function renderPanel(){
       + `<div class="grid">${qs.map(questCard).join('') || '<p class="c-dim">暫時冇委託。</p>'}</div>`;
     P.querySelectorAll('[data-go]').forEach(b => b.onclick = () => openDispatch(+b.dataset.go));
   } else if (tab === 'players'){
-    P.innerHTML = `<div class="role"><div class="ic">👥</div><div><h3>人手名冊</h3><p>信徒知道你係神；玩家叫你做「NPC」。冇出任務嘅時候，可以安排佢哋膜拜、生產、清潔或者守衛。</p></div></div>
+    P.innerHTML = `<div class="role"><div class="ic">👥</div><div><h3>人手名冊</h3><p>撳名睇角色卡、用神力加六維。冇出任務嘅時候，可以安排佢哋膜拜、生產、清潔或者守衛。</p></div></div>
       <div class="grid">${S.players.map(playerCard).join('') || '<p class="c-dim">一個人都冇。去神殿召喚啦。</p>'}</div>`;
   } else if (tab === 'wiki'){
     P.innerHTML = `<div class="role"><div class="ic">📖</div><div><h3>玩家論壇・攻略 Wiki</h3><p>玩家每次挑戰都會寫攻略，失敗學得仲多，死者嘅遺言最有用。攻略越高，該怪物嘅危險度越低（最多 −50%）。</p></div></div>
@@ -797,6 +906,9 @@ function renderPanel(){
       </div>`).join('')}</div>`;
   }
   P.querySelectorAll('.info').forEach(bindTip);
+  P.querySelectorAll('[data-sheet]').forEach(b => b.onclick = () => openSheet(+b.dataset.sheet));
+  P.querySelectorAll('[data-grave]').forEach(b => b.onclick = () => { const g = S.graves[+b.dataset.grave]; if (g && g.snap) openSheet(null, {grave:g}); });
+  P.querySelectorAll('.sk, .ab').forEach(bindTip);
   P.querySelectorAll('[data-job]').forEach(b => b.onclick = () => {
     const p = getP(+b.dataset.pid); if (!p || p.status !== 'idle') return;
     p.job = b.dataset.job; save(); render();
@@ -808,7 +920,71 @@ function jobButtons(p){
   return '<div class="jobs">' + Object.entries(JOBS).map(([k,j]) => `<button class="${p.job===k?'on':''}" data-job="${k}" data-pid="${p.id}" title="${j.d}">${j.ic} ${j.n}</button>`).join('') + '</div>';
 }
 function crewRow(p){
-  return `<div class="crew-row"><span class="who">${CLASSES[p.cls].ic} <b>${esc(p.name)}</b> <span class="c-dim">Lv${p.lv}</span></span>${jobButtons(p)}</div>`;
+  return `<div class="crew-row"><span class="who who-btn" data-sheet="${p.id}">${rarBadge(p.rar)} ${CLASSES[p.cls].ic} <b>${esc(p.name)}</b> <span class="c-dim">Lv${p.lv}</span></span>${jobButtons(p)}</div>`;
+}
+function tagsHtml(p){
+  return `<div class="tags">${p.skills.map(k => `<span class="sk" tabindex="0" data-tip="技能：${SKILLS[k].d}">⚔ ${SKILLS[k].n}</span>`).join('')}${p.abil.map(k => `<span class="ab" tabindex="0" data-tip="能力：${ABILITIES[k].d}">◆ ${ABILITIES[k].n}</span>`).join('')}</div>`;
+}
+function radar(st, rar){
+  const cx = 110, cy = 112, R0 = 82, col = {C:'#a8a8b4',R:'#6ab0f6',SR:'#c48ef8',SSR:'#f0c040'}[rar];
+  const pt = (i, v) => { const a = -Math.PI/2 + i*Math.PI/3, r = R0*v/STAT_MAX; return [cx + r*Math.cos(a), cy + r*Math.sin(a)]; };
+  const ring = v => STATS.map((_,i) => pt(i, v).map(n => n.toFixed(1)).join(',')).join(' ');
+  const poly = STATS.map((x,i) => pt(i, st[x.k]).map(n => n.toFixed(1)).join(',')).join(' ');
+  return `<svg viewBox="0 0 220 224" width="100%" style="max-width:220px">
+    ${[10,20,30].map(v => `<polygon points="${ring(v)}" fill="none" stroke="#ffffff1a"/>`).join('')}
+    ${STATS.map((_,i) => { const [x,y] = pt(i, STAT_MAX); return `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#ffffff14"/>`; }).join('')}
+    <polygon points="${poly}" fill="${col}" fill-opacity=".35" stroke="${col}" stroke-width="2"/>
+    ${STATS.map((x,i) => { const [px,py] = pt(i, st[x.k]); return `<circle cx="${px}" cy="${py}" r="3" fill="${col}"/>`; }).join('')}
+    ${STATS.map((x,i) => { const a = -Math.PI/2 + i*Math.PI/3, lx = cx + (R0+16)*Math.cos(a), ly = cy + (R0+16)*Math.sin(a) + 4; return `<text x="${lx}" y="${ly}" text-anchor="middle" font-size="12" fill="#e7e0d2">${x.n} ${st[x.k]}</text>`; }).join('')}
+  </svg>`;
+}
+function openSheet(id, opt = {}){
+  const draw = () => {
+    const p = opt.grave ? opt.grave.snap : getP(id); if (!p) return closeModal();
+    const g = opt.grave;
+    const RR = RARITY[p.rar];
+    $('#mHead').innerHTML = `<h2>${rarBadge(p.rar)} ${CLASSES[p.cls].ic} ${esc(p.name)}</h2><div class="sub">Lv${p.lv} ${CLASSES[p.cls].n}｜<span class="${TRAITS[p.trait].c}">${TRAITS[p.trait].n}</span>｜戰力 ${power(p)}${g ? '｜🪦 已死亡' : ''}</div>`;
+    const canEdit = !g;
+    $('#mBody').innerHTML = (opt.summoned ? `<div class="reveal"><div class="big ${p.rar}">${p.rar}</div><div class="c-dim">${p.rar==='SSR'?'金光幾乎照穿咗神殿屋頂！':p.rar==='SR'?'紫色嘅光從神像腳下湧出。':p.rar==='R'?'一道藍光閃過。':'光好暗……不過至少係個人。'}</div></div>` : '')
+      + (g ? `<p class="c-dim" style="margin-top:0">第 ${g.day} 日死於「${esc(g.where)}」。最後一句：「${esc(g.last)}」</p>` : '')
+      + `<div class="sheet"><div>${radar(p.st, p.rar)}</div><div>
+        <div class="section" style="margin-top:0">六維<i class="info" tabindex="0" data-tip="用神力直接提升屬性，每點上限 ${STAT_MAX}。屬性越高，加點越貴。升級時主屬性同一項隨機屬性都會 +1。">i</i></div>
+        ${STATS.map(x => `<div class="statrow"><span>${x.n}<i class="info" tabindex="0" data-tip="${x.d}">i</i></span><b>${p.st[x.k]}</b>
+          <div class="mini"><i style="width:${p.st[x.k]/STAT_MAX*100}%;background:var(--gold)"></i></div>
+          ${canEdit ? (p.st[x.k] >= STAT_MAX ? '<button disabled>已滿</button>' : `<button data-up="${x.k}" ${S.faith < statCost(p,x.k) ? 'disabled' : ''}>+1（${statCost(p,x.k)}）</button>`) : '<span></span>'}
+        </div>`).join('')}
+        <div class="section">技能 ⚔ ／ 能力 ◆</div>
+        ${tagsHtml(p)}
+        <div class="c-dim" style="font-size:12px;margin-top:8px">稀有度 ${p.rar}：屬性 ${RR.lo}–${RR.hi}，技能 ${RR.sk} 個，能力 ${RR.ab} 個</div>
+      </div></div>`;
+    const cost = g ? reviveCost(g) : 0;
+    $('#mFoot').innerHTML = g
+      ? `<span class="c-dim" style="margin-right:auto;font-size:12px">神殿 ${S.players.length}/${MAXP}</span><button id="mClose">返回</button><button class="primary" id="mRevive" ${S.faith < cost || S.players.length >= MAXP ? 'disabled' : ''}>✨ 復活（${cost} 神力）</button>`
+      : `<span class="c-gold" style="margin-right:auto">✨ 神力 ${S.faith}</span><button class="primary" id="mClose">${opt.summoned ? '歡迎加入' : '關閉'}</button>`;
+    $('#mClose').onclick = () => { closeModal(); render(); };
+    $('#mBody').querySelectorAll('[data-up]').forEach(b => b.onclick = () => {
+      const k = b.dataset.up, c = statCost(p, k);
+      if (S.faith < c || p.st[k] >= STAT_MAX) return;
+      S.faith -= c; p.st[k]++;
+      log(`✨ 神力灌注：${p.name} 嘅${STATS.find(x=>x.k===k).n}升到 ${p.st[k]}。`, 'c-gold');
+      save(); $('#sFaith').textContent = S.faith;
+      const st = $('#mBody').scrollTop; draw(); $('#mBody').scrollTop = st;
+    });
+    const rv = $('#mRevive'); if (rv) rv.onclick = () => revive(g);
+  };
+  openModal(); draw();
+}
+function revive(g){
+  const cost = reviveCost(g);
+  if (S.faith < cost || S.players.length >= MAXP) return;
+  S.faith -= cost;
+  const p = snap(g.snap);
+  Object.assign(p, {id:S.uid++, status:'idle', inj:0, job:'worship', morale:50, revived:(p.revived||0)+1});
+  S.players.push(p);
+  S.graves = S.graves.filter(x => x !== g);
+  log(`✨ 你用 ${cost} 神力將 ${p.name} 由死亡拉返嚟。`, 'c-gold');
+  log(`${p.name}：「${p.kind === 'believer' ? '神……多謝你。' : pick(['…我啱啱見到嘅唔係 loading 畫面。','原來呢度死咗係真係會痛。','我唔再覺得呢度係遊戲。','復活點……原來係你。'])}」`, 'c-dim');
+  closeModal(); save(); render();
 }
 function render(){
   $('#sDay').textContent = S.day;
@@ -876,7 +1052,7 @@ function bindTip(el){
   el.addEventListener('blur', hideTip);
   el.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); showTip(el); });
 }
-new MutationObserver(() => document.querySelectorAll('#mBody .info, #top .info').forEach(bindTip))
+new MutationObserver(() => document.querySelectorAll('#mBody .info, #mBody .sk, #mBody .ab, #top .info').forEach(bindTip))
   .observe($('#modal'), {childList:true, subtree:true});
 
 /* ---------- 存檔 ---------- */
