@@ -67,10 +67,33 @@ button.danger{background:#3a1515;border-color:#6d2a2a}
 .grave .q2{color:var(--dim);font-style:italic}
 .wiki{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
 .wiki ul{margin:6px 0 0;padding-left:18px;color:#cfc8bb;font-size:13px}
+/* temple scene */
+.scene{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;aspect-ratio:800/400;min-height:300px;background:#0b0a12}
+.scene svg.bg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.scene-title{position:absolute;left:14px;top:10px;font-size:20px;color:var(--gold);text-shadow:0 2px 8px #000;letter-spacing:3px;display:flex;align-items:center;gap:4px}
+.scene-act{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;gap:8px;align-items:center}
+.scene-act button{box-shadow:0 0 18px #d9b45c55;white-space:nowrap}
+.pill{white-space:nowrap}
+.pill{display:inline-flex;align-items:center;gap:2px;background:#000a;border:1px solid var(--line);border-radius:14px;padding:4px 10px;font-size:13px}
+.flame{transform-box:fill-box;transform-origin:50% 100%;animation:flick 1.3s ease-in-out infinite}
+@keyframes flick{0%,100%{transform:scale(1,1);opacity:1}40%{transform:scale(.85,1.12);opacity:.85}70%{transform:scale(1.05,.9);opacity:.95}}
+.beam{animation:beam 6s ease-in-out infinite}
+@keyframes beam{0%,100%{opacity:.6}50%{opacity:1}}
+.eye{transform-box:fill-box;transform-origin:center;animation:blink 5s infinite}
+@keyframes blink{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.1)}}
+.dust{animation:dust 9s linear infinite}
+@keyframes dust{from{transform:translateY(0);opacity:0}20%{opacity:.8}to{transform:translateY(160px);opacity:0}}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{background:var(--panel2);border:1px solid #2d4a66;border-radius:14px;padding:3px 10px;font-size:12px;cursor:default}
+.tombs{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding:10px;background:#0004;border-radius:10px}
+.tomb{width:62px;display:flex;flex-direction:column;align-items:center;font-size:11px;color:var(--dim);cursor:help;outline:none;text-align:center}
+.tomb span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:62px}
+.tomb.left{opacity:.6}
+.tomb:hover span,.tomb:focus span{color:var(--gold)}
 /* info popover */
 .info{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1px solid var(--dim);color:var(--dim);font-size:11px;font-style:normal;cursor:help;position:relative;vertical-align:middle;margin-left:3px;outline:none;flex:none}
 .info:hover,.info:focus{color:var(--gold);border-color:var(--gold)}
-#tip{position:fixed;z-index:200;max-width:280px;background:#0b0a0f;border:1px solid var(--gold);color:var(--txt);padding:8px 10px;border-radius:8px;font-size:13px;line-height:1.5;box-shadow:var(--shadow);display:none;pointer-events:none}
+#tip{position:fixed;z-index:200;max-width:280px;background:#0b0a0f;border:1px solid var(--gold);color:var(--txt);padding:8px 10px;border-radius:8px;font-size:13px;line-height:1.5;box-shadow:var(--shadow);display:none;pointer-events:none;white-space:pre-line}
 /* modal */
 #veil{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:100}
 #veil.show{display:flex}
@@ -527,6 +550,87 @@ function summon(){
   save(); render();
 }
 
+/* ---------- 神殿場景 ---------- */
+function templeSVG(){
+  const div = S.div/100, cor = S.cor/100;
+  const nCandle = clamp(Math.floor(S.faith/10), 0, 12);
+  const candleSpots = [[300,318],[500,318],[275,318],[525,318],[330,298],[470,298],[250,318],[550,318],[350,298],[450,298],[225,318],[575,318]];
+  const candles = candleSpots.slice(0, nCandle).map(([x,y],i) => {
+    const h = 10 + (i*7)%9;
+    return `<g><ellipse cx="${x}" cy="${y-h-6}" rx="14" ry="14" fill="url(#glow)"/>
+      <rect x="${x-3}" y="${y-h}" width="6" height="${h}" rx="1.5" fill="#e8dcc0"/>
+      <path class="flame" style="animation-delay:-${(i*0.37)%1.3}s" d="M${x} ${y-h-11}q4 6 0 10q-4-4 0-10z" fill="#ffcf6a"/></g>`;
+  }).join('');
+  const eyeSpots = [[70,250],[740,230],[120,170],[700,300],[40,330],[770,150],[200,140],[640,140]];
+  const eyes = eyeSpots.slice(0, Math.floor(S.cor/12)).map(([x,y],i) =>
+    `<g class="eye" style="animation-delay:-${i*0.9}s"><ellipse cx="${x-7}" cy="${y}" rx="4" ry="2.4" fill="#e0453a"/><ellipse cx="${x+7}" cy="${y}" rx="4" ry="2.4" fill="#e0453a"/></g>`).join('');
+  const stars = [[395,48],[470,44],[420,70],[488,80],[440,95]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="1" fill="#fff" opacity=".7"/>`).join('');
+  const dust = [380,410,440,470,505].map((x,i) => `<circle class="dust" style="animation-delay:-${i*1.8}s" cx="${x}" cy="${110+i*9}" r="1.3" fill="#ffe9b0"/>`).join('');
+  const hole = 'M372 62 L398 44 L425 55 L452 34 L488 50 L515 46 L508 78 L490 100 L462 92 L438 110 L410 96 L385 104 Z';
+  return `<svg class="bg" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1a3e"/><stop offset="1" stop-color="#120d1c"/></linearGradient>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d1925"/><stop offset="1" stop-color="#121018"/></linearGradient>
+    <linearGradient id="beamG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9b8" stop-opacity=".38"/><stop offset="1" stop-color="#ffe9b8" stop-opacity="0"/></linearGradient>
+    <linearGradient id="stone" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4a4453"/><stop offset=".45" stop-color="#7c7586"/><stop offset="1" stop-color="#3a3542"/></linearGradient>
+    <radialGradient id="glow"><stop offset="0" stop-color="#ffcf6a" stop-opacity=".45"/><stop offset="1" stop-color="#ffcf6a" stop-opacity="0"/></radialGradient>
+    <radialGradient id="halo"><stop offset=".6" stop-color="#d9b45c" stop-opacity="0"/><stop offset=".8" stop-color="#d9b45c" stop-opacity=".7"/><stop offset="1" stop-color="#d9b45c" stop-opacity="0"/></radialGradient>
+    <radialGradient id="vig" cx=".5" cy=".55" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".85"/></radialGradient>
+    <pattern id="bricks" width="60" height="30" patternUnits="userSpaceOnUse"><path d="M0 0H60M0 15H60M0 0V15M30 15V30" stroke="#ffffff08" fill="none"/></pattern>
+    <clipPath id="holeClip"><path d="${hole}"/></clipPath>
+  </defs>
+  <rect width="800" height="400" fill="url(#wall)"/>
+  <rect y="110" width="800" height="230" fill="url(#bricks)"/>
+  <!-- 屋頂 -->
+  <path d="M-20 130 L400 10 L820 130 L820 150 L400 32 L-20 150 Z" fill="#2b2433"/>
+  <path d="M0 150 L400 32 L800 150 L800 112 L400 0 L0 112Z" fill="#221c29"/>
+  <g clip-path="url(#holeClip)"><rect width="800" height="140" fill="url(#sky)"/>${stars}<circle cx="470" cy="66" r="17" fill="#efe4c4"/><circle cx="477" cy="62" r="15" fill="#2a1a3e" opacity=".55"/></g>
+  <path d="${hole}" fill="none" stroke="#0e0b12" stroke-width="4"/>
+  <path d="M380 70 L470 112 M430 42 L452 104" stroke="#3a2f2a" stroke-width="6" stroke-linecap="round"/>
+  <!-- 光柱 -->
+  <polygon class="beam" points="385,100 505,90 520,340 300,340" fill="url(#beamG)"/>
+  ${dust}
+  <!-- 柱 -->
+  <rect x="120" y="128" width="46" height="212" fill="#2a2532"/><rect x="112" y="122" width="62" height="12" fill="#332d3c"/><rect x="112" y="330" width="62" height="12" fill="#332d3c"/>
+  <path d="M140 160 l8 30 l-6 22 l10 40" stroke="#0e0b12" stroke-width="2" fill="none"/>
+  <path d="M634 340 V214 l10 -14 l12 10 l10 -18 l14 16 V340Z" fill="#2a2532"/><rect x="626" y="330" width="62" height="12" fill="#332d3c"/>
+  <path d="M690 352 l40 -10 l18 16 l-46 10z M600 356 l22 -12 l16 12z" fill="#2e2936"/>
+  <!-- 地面 -->
+  <rect y="340" width="800" height="60" fill="#100d15"/>
+  <path d="M0 340H800" stroke="#2d2836"/>
+  <path d="M220 360 l40 8 l30 -6 l50 14 M560 372 l30 -10 l44 8" stroke="#000" stroke-width="2" fill="none" opacity=".6"/>
+  <!-- 祭壇階梯 -->
+  <rect x="220" y="318" width="360" height="22" fill="#2a2532"/><rect x="220" y="318" width="360" height="3" fill="#3d3647"/>
+  <rect x="310" y="298" width="180" height="20" fill="#2f2938"/><rect x="310" y="298" width="180" height="3" fill="#443c4f"/>
+  <!-- 台座 -->
+  <rect x="355" y="250" width="90" height="48" fill="#3a3443"/><rect x="348" y="244" width="104" height="10" fill="#4a4354"/>
+  <path d="M370 268 l8 10 l-4 12" stroke="#1a161f" fill="none" stroke-width="2"/>
+  <!-- 神像（冇頭） -->
+  <path d="M372 140 Q400 132 428 140 L438 175 Q446 210 456 244 L344 244 Q354 210 362 175 Z" fill="url(#stone)"/>
+  <path d="M372 140 Q352 150 350 180 L360 206 L372 180 Z M428 140 Q448 150 450 180 L440 206 L428 180 Z" fill="#5a5363"/>
+  <path d="M368 196 Q400 214 432 196 L432 206 Q400 224 368 206Z" fill="#4c4556"/>
+  <path d="M384 150 L400 186 L416 150" stroke="#3a3542" fill="none" stroke-width="2"/>
+  <path d="M388 140 L391 130 L396 135 L401 127 L406 134 L412 129 L412 140Z" fill="#6b6475"/>
+  <path d="M418 160 l-6 14 l5 10" stroke="#2a2531" fill="none" stroke-width="1.5"/>
+  <!-- 重現中嘅頭 -->
+  ${div >= .5 ? `<circle cx="400" cy="112" r="34" fill="url(#halo)" opacity="${((div-.5)*2).toFixed(2)}"/>` : ''}
+  <g opacity="${(0.12 + div*0.88).toFixed(2)}">
+    <ellipse cx="400" cy="112" rx="15" ry="18" fill="#d9b45c" fill-opacity="${(div*0.55).toFixed(2)}" stroke="#d9b45c" stroke-width="1.2" stroke-dasharray="${div>=1?'0':'3 3'}"/>
+    <path d="M393 112 h4 M403 112 h4" stroke="#fff4d0" stroke-width="1.5" stroke-linecap="round" opacity="${div.toFixed(2)}"/>
+  </g>
+  <!-- 跌喺地上嘅頭 -->
+  <g opacity="${(1-div*0.9).toFixed(2)}" transform="rotate(-24 548 350)">
+    <ellipse cx="548" cy="350" rx="16" ry="18" fill="#5e5768"/>
+    <path d="M540 348 q4 3 7 0 M551 348 q4 3 7 0" stroke="#2a2531" stroke-width="1.5" fill="none"/>
+    <path d="M532 340 l10 6 l-4 10" stroke="#2a2531" fill="none"/>
+  </g>
+  ${candles}
+  ${eyes}
+  <rect width="800" height="400" fill="#7a0d12" opacity="${(cor*0.22).toFixed(2)}" style="mix-blend-mode:multiply"/>
+  <rect width="800" height="400" fill="url(#vig)"/>
+</svg>`;
+}
+
 /* ---------- 畫面 ---------- */
 function stars(t){ return `<span class="stars">${'★'.repeat(Math.min(t,6))}</span>`; }
 function questCard(q){
@@ -557,16 +661,18 @@ function renderPanel(){
   if (tab === 'temple'){
     const c = summonCost();
     P.innerHTML = `
-      <div class="role"><div class="ic">⛩️</div><div><h3>神明・破落神殿</h3><p>屋頂穿咗，神像冇咗頭。呢度係你真正嘅身份。你可以從異界召喚「玩家」，佢哋以為一切都係遊戲。</p></div></div>
-      <div class="row" style="align-items:center;justify-content:flex-start;gap:12px">
-        <button class="primary" id="btnSummon" ${S.faith<c||S.players.length>=5?'disabled':''}>✨ 召喚玩家（${c} 信仰）</button>
-        <span class="c-dim">玩家 ${S.players.length}/5<i class="info" tabindex="0" data-tip="同時最多 5 個玩家。每召喚一次，下次就貴 15 信仰。開局嗰 5 個係用你最後嘅神力召喚，唔計數。">i</i></span>
+      <div class="scene">
+        ${templeSVG()}
+        <div class="scene-title serif">破落神殿<i class="info" tabindex="0" data-tip="屋頂穿咗，神像冇咗頭。呢度係你真正嘅身份。蠟燭代表你嘅信仰；神格越高，神像個頭就越重現；詭異越高，黑暗入面嘅眼就越多。">i</i></div>
+        <div class="scene-act">
+          <button class="primary" id="btnSummon" ${S.faith<c||S.players.length>=5?'disabled':''}>✨ 召喚（${c}）</button>
+          <span class="pill">🎮 ${S.players.length}/5<i class="info" tabindex="0" data-tip="同時最多 5 個玩家。召喚要用信仰，每召喚一次下次就貴 15。開局嗰 5 個係用你最後嘅神力召喚。">i</i></span>
+        </div>
       </div>
-      <div class="section">進行中嘅任務</div>
-      ${S.active.length ? S.active.map(a => `<div class="grave" style="border-left-color:var(--blue)"><div><b>${esc(a.q.title)}</b> ${a.bless?'<span class="c-gold">✨神蹟</span>':''}<br><span class="c-dim">${a.party.map(id => esc(getP(id)?.name || '?')).join('、')}｜仲有 ${a.left} 日</span></div></div>`).join('') : '<p class="c-dim">冇。去新手村或者公會派任務啦。</p>'}
-      <div class="section">墓碑牆</div>
-      ${S.graves.length ? S.graves.slice().reverse().map(g => `<div class="grave"><div>${g.left?'🚪':'🪦'}</div><div><b>${esc(g.name)}</b> <span class="c-dim">Lv${g.lv} ${CLASSES[g.cls].n}｜第 ${g.day} 日｜${esc(g.where)}</span><div class="q2">「${esc(g.last)}」</div></div></div>`).join('') : '<p class="c-dim">暫時一個名都未有。暫時。</p>'}`;
+      ${S.active.length ? `<div class="chips">${S.active.map(a => `<span class="chip" data-tip="${esc(a.party.map(id => getP(id)?.name || '?').join('、'))}">⚔️ ${esc(a.q.title)} <b>${a.left}日</b>${a.bless?' ✨':''}</span>`).join('')}</div>` : ''}
+      ${S.graves.length ? `<div class="tombs">${S.graves.slice().reverse().map(g => `<div class="tomb ${g.left?'left':''}" tabindex="0" data-tip="${esc(`Lv${g.lv} ${CLASSES[g.cls].n}｜第 ${g.day} 日｜${g.where}\n「${g.last}」`)}">${g.left?'🚪':`<svg viewBox="0 0 40 44" width="34" height="38"><path d="M6 44V16a14 14 0 0 1 28 0v28z" fill="#3b3644" stroke="#55505e"/><path d="M20 12v14M14 18h12" stroke="#6d6678" stroke-width="2.5"/></svg>`}<span>${esc(g.name)}</span></div>`).join('')}</div>` : ''}`;
     const b = $('#btnSummon'); if (b) b.onclick = summon;
+    P.querySelectorAll('.tomb, .chip').forEach(bindTip);
   } else if (tab === 'village' || tab === 'guild'){
     const qs = S.quests.filter(q => q.board === tab);
     P.innerHTML = (tab === 'village'
