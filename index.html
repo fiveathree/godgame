@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>落魄神明</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0c11;--panel:#16141c;--panel2:#1e1b26;--line:#2f2a3a;
+  --txt:#e7e0d2;--dim:#8d8698;--gold:#d9b45c;--red:#d2544c;--green:#71c077;
+  --blue:#6ea7da;--purple:#a983dc;--shadow:0 10px 40px #000a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(ellipse at 50% -10%,#2a1a2c 0%,var(--bg) 55%) fixed,var(--bg);
+  color:var(--txt);font:14px/1.55 system-ui,"Microsoft JhengHei","PingFang TC",sans-serif;overflow:hidden}
+h1,h2,h3,.serif{font-family:"Noto Serif TC","PMingLiU",serif;font-weight:700;margin:0}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--txt);border-radius:8px;padding:6px 12px}
+button:hover:not(:disabled){border-color:var(--gold)}
+button:disabled{opacity:.4;cursor:not-allowed}
+button.primary{background:linear-gradient(#5a3a1c,#3c2611);border-color:#8a6430;color:#ffe7b0}
+button.danger{background:#3a1515;border-color:#6d2a2a}
+#app{display:grid;grid-template-rows:auto 1fr;height:100vh;max-width:1280px;margin:0 auto;padding:12px 16px;gap:10px}
+/* top bar */
+#top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+#top h1{font-size:20px;color:var(--gold);letter-spacing:2px}
+.stat{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.stat b{font-variant-numeric:tabular-nums}
+.bar{width:110px;height:8px;background:#0008;border-radius:4px;overflow:hidden;border:1px solid var(--line)}
+.bar i{display:block;height:100%}
+.spacer{flex:1}
+#main{display:grid;grid-template-columns:1fr 340px;gap:10px;min-height:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px}
+#center{display:grid;grid-template-rows:auto 1fr;min-height:0}
+#tabs{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:1px solid var(--line)}
+#tabs button{border:0;border-radius:0;background:none;padding:11px 4px;color:var(--dim);border-bottom:2px solid transparent;white-space:nowrap;overflow:hidden}
+#tabs button.on{color:var(--gold);border-bottom-color:var(--gold)}
+#tabs button .badge{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:#5a2020;color:#fff;font-size:11px;visibility:hidden}
+#tabs button .badge.show{visibility:visible}
+#panel{overflow-y:auto;padding:14px;min-height:0}
+#side{display:grid;grid-template-rows:auto 1fr;min-height:0}
+#side h3{padding:10px 14px;border-bottom:1px solid var(--line);font-size:15px}
+#log{overflow-y:auto;padding:8px 12px;font-size:13px;min-height:0}
+#log .d{color:var(--gold);margin-top:8px;font-weight:700}
+#log p{margin:3px 0;color:#cfc8bb}
+.c-red{color:var(--red)}.c-green{color:var(--green)}.c-gold{color:var(--gold)}.c-dim{color:var(--dim)}.c-blue{color:var(--blue)}.c-purple{color:var(--purple)}
+.role{display:flex;gap:12px;align-items:flex-start;padding:12px;margin-bottom:12px;background:var(--panel2);border:1px solid var(--line);border-radius:10px}
+.role .ic{font-size:30px;line-height:1}
+.role p{margin:4px 0 0;color:var(--dim)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.q{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.q.main{border-color:#8a2f2f;box-shadow:0 0 18px #8a2f2f55}
+.q .t{font-weight:700}
+.q .meta{display:flex;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--dim)}
+.tag{display:inline-block;padding:1px 7px;border-radius:10px;background:#0006;border:1px solid var(--line);font-size:12px}
+.stars{color:var(--red);letter-spacing:1px}
+.pl{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
+.pl .hd{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.pl .nm{font-weight:700;font-size:15px}
+.row{display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-top:4px}
+.mini{height:6px;background:#0008;border-radius:3px;overflow:hidden;margin-top:3px}
+.mini i{display:block;height:100%}
+.section{margin:18px 0 8px;font-size:15px;color:var(--gold)}
+.grave{display:flex;gap:10px;padding:8px 10px;border-left:3px solid #553;background:#0003;margin-bottom:6px;border-radius:4px}
+.grave .q2{color:var(--dim);font-style:italic}
+.wiki{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
+.wiki ul{margin:6px 0 0;padding-left:18px;color:#cfc8bb;font-size:13px}
+/* info popover */
+.info{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1px solid var(--dim);color:var(--dim);font-size:11px;font-style:normal;cursor:help;position:relative;vertical-align:middle;margin-left:3px;outline:none;flex:none}
+.info:hover,.info:focus{color:var(--gold);border-color:var(--gold)}
+#tip{position:fixed;z-index:200;max-width:280px;background:#0b0a0f;border:1px solid var(--gold);color:var(--txt);padding:8px 10px;border-radius:8px;font-size:13px;line-height:1.5;box-shadow:var(--shadow);display:none;pointer-events:none}
+/* modal */
+#veil{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:100}
+#veil.show{display:flex}
+#modal{width:min(580px,94vw);height:min(600px,88vh);display:grid;grid-template-rows:auto 1fr auto;background:var(--panel);border:1px solid var(--gold);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+#mHead{padding:14px 16px;border-bottom:1px solid var(--line)}
+#mHead h2{font-size:18px;color:var(--gold)}
+#mHead .sub{color:var(--dim);font-size:13px;margin-top:3px}
+#mBody{overflow-y:auto;padding:12px 16px}
+#mFoot{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.pick{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;cursor:pointer;background:var(--panel2)}
+.pick.sel{border-color:var(--gold);background:#2a2316}
+.pick input{accent-color:var(--gold)}
+.pick .risk{margin-left:auto;font-size:12px;text-align:right;white-space:nowrap}
+.est{display:flex;gap:16px;padding:10px;background:#0005;border-radius:8px;margin:8px 0;flex-wrap:wrap}
+.est div{display:flex;flex-direction:column}
+.est b{font-size:20px}
+.lines p{margin:5px 0}
+input[type=range]{width:100%;accent-color:var(--gold)}
+.share{padding:12px;background:#0005;border-radius:8px;margin-top:10px}
+@media (max-width:860px){
+  body{overflow:auto}
+  #app{height:auto;min-height:100vh}
+  #main{grid-template-columns:1fr}
+  #center{height:70vh}
+  #side{height:240px}
+  #tabs button{font-size:13px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="top">
+    <h1>落魄神明</h1>
+    <div class="stat">📅 第 <b id="sDay">1</b> 日</div>
+    <div class="stat">🕯️ 信仰 <b id="sFaith">0</b><i class="info" tabindex="0" data-tip="神明嘅貨幣。用嚟召喚新玩家、施展神蹟。任務賞金你冇分俾玩家嗰份就係你嘅信仰。村民每日都會供奉少少。">i</i></div>
+    <div class="stat">👑 神格 <div class="bar"><i id="bDiv" style="background:var(--gold)"></i></div><b id="sDiv">0</b><i class="info" tabindex="0" data-tip="完成任務會恢復神格。神格去到 100，主線任務「空白神座」就會喺公會出現，打贏就通關。">i</i></div>
+    <div class="stat">🩸 詭異 <div class="bar"><i id="bCor" style="background:var(--red)"></i></div><b id="sCor">0</b><i class="info" tabindex="0" data-tip="世界嘅詭異程度，每日自然上升。任務過期或失敗會升更多，完成任務會壓返低。去到 100 就全村淪陷，遊戲結束。">i</i></div>
+    <div class="spacer"></div>
+    <button id="btnNew" title="重新開始">↺ 新局</button>
+    <button id="btnNext" class="primary">▶ 下一日</button>
+  </header>
+  <div id="main">
+    <section id="center" class="card">
+      <nav id="tabs">
+        <button data-tab="temple">⛩️ 神殿<span class="badge" id="bgTemple">0</span></button>
+        <button data-tab="village">🏚️ 新手村<span class="badge" id="bgVillage">0</span></button>
+        <button data-tab="guild">📜 公會<span class="badge" id="bgGuild">0</span></button>
+        <button data-tab="players">🎮 玩家<span class="badge" id="bgPlayers">0</span></button>
+        <button data-tab="wiki">📖 攻略<span class="badge" id="bgWiki">0</span></button>
+      </nav>
+      <div id="panel"></div>
+    </section>
+    <aside id="side" class="card">
+      <h3 class="serif">神諭日誌</h3>
+      <div id="log"></div>
+    </aside>
+  </div>
+</div>
+<div id="veil"><div id="modal"><div id="mHead"></div><div id="mBody"></div><div id="mFoot"></div></div></div>
+<div id="tip"></div>
+
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const R = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const clamp = (x,a,b) => Math.max(a, Math.min(b, x));
+const pct = x => Math.round(x*100) + '%';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- 資料 ---------- */
+const CLASSES = {
+  warrior:{n:'戰士',ic:'🛡️',base:14,death:0.7, d:'皮厚。死亡率 ×0.7'},
+  mage:   {n:'法師',ic:'🔮',base:17,death:1.25,d:'火力最高但脆。死亡率 ×1.25'},
+  rogue:  {n:'刺客',ic:'🗡️',base:15,death:1,   d:'平衡型，冇特別'},
+  priest: {n:'牧師',ic:'✨',base:10,death:0.9, d:'火力低，但同隊其他人死亡率 ×0.7'},
+  archer: {n:'弓手',ic:'🏹',base:13,death:0.85,d:'企後排，死亡率 ×0.85'},
+};
+const TRAITS = {
+  reckless:{n:'莽撞',c:'c-red',   d:'見門就踢。戰力 +15%，死亡率 ×1.6；得閒會自己走去「試錯」，有機會帶返攻略，亦有機會返唔到嚟。'},
+  cautious:{n:'謹慎',c:'c-blue',  d:'會讀晒任務說明先出發。戰力 −10%，死亡率 ×0.5。'},
+  greedy:  {n:'貪婪',c:'c-gold',  d:'課金腦。分成低過 60% 會好唔開心（士氣大跌）。'},
+  wiki:    {n:'攻略組',c:'c-purple',d:'邊打邊寫 wiki。攻略進度 ×1.5。'},
+  lucky:   {n:'歐皇',c:'c-green', d:'抽卡從不失手。全隊成功率 +8%。'},
+  streamer:{n:'直播主',c:'c-blue',d:'成日對住空氣講嘢，村民以為佢喺度傳教。每日信仰 +3。'},
+};
+const MONS = [
+  {id:'faceless',n:'無面村民',d:'白天同你打招呼，夜晚塊面唔見咗'},
+  {id:'well',    n:'井底低語',d:'井入面有人叫緊你個名'},
+  {id:'clock',   n:'倒行之鐘',d:'每響一下，時間倒退一刻'},
+  {id:'doll',    n:'縫線人偶',d:'會模仿最後一個死嘅人'},
+  {id:'mirror',  n:'鏡中客',  d:'鏡入面嗰個你，郁得比你快'},
+  {id:'lantern', n:'引魂燈籠',d:'跟住燈行，就返唔到轉頭'},
+  {id:'choir',   n:'無聲詩班',d:'聽唔到歌，但耳仔會流血'},
+  {id:'throne',  n:'空白神座',d:'你曾經坐過嘅位置，而家有嘢坐咗上去', boss:true},
+];
+const MON = Object.fromEntries(MONS.map(m => [m.id, m]));
+const TPL = {
+  village:['幫王婆婆搵貓（貓去咗{m}嗰度）','調查{m}出沒傳聞','夜更巡邏：小心{m}','護送賣菜阿伯避開{m}','清理村口：{m}','收集{m}嘅殘骸做研究'],
+  guild:['討伐{m}','深入巢穴：{m}','回收失蹤冒險者（疑似遇上{m}）','封印{m}','懸賞：{m}首領','護送商隊穿過{m}領域'],
+};
+const NAME_A = ['肝帝','一血','速通','SL','歐皇','非酋','手殘','課長','野生','退坑','鹹魚','暴走','佛系','頭鐵','夜貓','白給'];
+const NAME_B = ['阿強','小明','大濕','Kiki','老陳','喵喵','Zero','阿鬼','肥仔','豆豆','Ken','細妹','阿Sir','Momo','狗蛋','J仔'];
+const SAY = {
+  go:['衝呀！反正死咗都會重生','呢個副本幾星難度？','等我試下用頭撞佢','NPC 任務獎勵咁少都做？算啦','睇我一條龍速通','先跳落去再算','呢隻怪 hitbox 好怪','有冇人組隊？冇？我自己去'],
+  win:['GG easy','掉寶率好低喎','即刻上論壇寫攻略','呢個 NPC 女神好似對我哋特別好','EXP 好香'],
+  fail:['點解冇存檔點？！','呢隻怪絕對有 bug','我已經記低咗佢嘅攻擊模式，下次一定得','撤！撤！撤！','剛才嗰下係網卡'],
+  dieLast:['等陣，點解冇復活倒數？','我…我登出唔到…','呢度好凍，係咪伺服器斷咗？','幫我同我阿媽講…唔係，呢度係遊戲嚟㗎啩？','記住佢右邊有破綻——','原來…痛係真嘅'],
+  mourn:['喂 {d} 點解下線咗？','GM？有冇 GM？','{d} 個帳號…搵唔到喎','唔好玩啦，{d} 佢應該 AFK 啫','我開始覺得呢個遊戲唔對路'],
+  solo:['反正得閒，去試下撞牆有冇隱藏通道','我想睇下跳落去會點','試下同隻怪講嘢','老實講我覺得可以速通','一個人去先叫浪漫'],
+};
+
+/* ---------- 狀態 ---------- */
+let S, tab = 'temple', pendingReports = [];
+const SAVE_KEY = 'fallengod-save-v1';
+
+function makePlayer(){
+  const used = new Set(S.players.map(p => p.name).concat(S.graves.map(g => g.name)));
+  let name, tries = 0;
+  do { name = pick(NAME_A) + pick(NAME_B); tries++; } while (used.has(name) && tries < 50);
+  const cls = pick(Object.keys(CLASSES)), trait = pick(Object.keys(TRAITS));
+  return {id:S.uid++, name, cls, trait, lv:1, exp:0, morale:70, status:'idle', inj:0, done:0, joined:S.day};
+}
+function power(p){ return CLASSES[p.cls].base + (p.lv-1)*7; }
+function expNeed(lv){ return lv*25; }
+function summonCost(){ return 30 + S.summons*15; }
+function getP(id){ return S.players.find(p => p.id === id); }
+
+function genQuest(board){
+  const maxT = Math.min(5, 2 + Math.floor(S.day/5));
+  const tier = board === 'village' ? R(1,2) : R(2, maxT);
+  const m = pick(MONS.filter(x => !x.boss));
+  return {
+    id:S.uid++, board, mon:m.id, tier,
+    title: pick(TPL[board]).replace('{m}', m.n),
+    danger: tier*16 + R(0,8),
+    days: R(1, Math.min(3, tier)),
+    reward: tier*22 + R(0,15),
+    expire: S.day + R(3,5),
+    min: tier >= 4 ? 3 : tier >= 2 ? 2 : 1,
+  };
+}
+function refillBoards(){
+  const n = b => S.quests.filter(q => q.board === b).length;
+  while (n('village') < 3) S.quests.push(genQuest('village'));
+  while (n('guild') < 4) S.quests.push(genQuest('guild'));
+  if (S.div >= 100 && !S.mainSpawned){
+    S.mainSpawned = true;
+    S.quests.unshift({id:S.uid++, board:'guild', mon:'throne', tier:6, main:true,
+      title:'【主線】奪回空白神座', danger:200, days:3, reward:300, expire:Infinity, min:3});
+    log('神格已經圓滿。公會櫃台上，出現咗一張用血寫嘅委託書……', 'c-red');
+  }
+}
+
+function newGame(){
+  S = {day:1, faith:40, div:0, cor:10, summons:0, uid:1, players:[], quests:[], active:[], graves:[],
+       intel:{}, wiki:{}, logs:[], mainSpawned:false, over:null};
+  MONS.forEach(m => { S.intel[m.id] = 0; S.wiki[m.id] = []; });
+  for (let i = 0; i < 5; i++) S.players.push(makePlayer());
+  refillBoards();
+  logDay();
+  log('你曾經係呢個世界嘅神。而家，連廟都爛埋。', 'c-dim');
+  log('你用最後嘅神力，從「另一個世界」召喚咗五個人。佢哋以為呢度係一隻新出嘅 VR 遊戲。', 'c-dim');
+  log('佢哋唔知道：喺呢度死咗，就真係冇咗。', 'c-red');
+  pendingReports = [];
+  tab = 'temple';
+  save(); render();
+}
+
+/* ---------- 日誌 ---------- */
+function logDay(){ S.logs.push({d:S.day}); }
+function log(t, c=''){ S.logs.push({t, c}); if (S.logs.length > 400) S.logs.splice(0, S.logs.length - 400); }
+function renderLog(){
+  const el = $('#log');
+  el.innerHTML = S.logs.map(l => l.d ? `<div class="d">— 第 ${l.d} 日 —</div>` : `<p class="${l.c}">${esc(l.t)}</p>`).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+/* ---------- 估算 ---------- */
+function estimate(q, party, bless){
+  const intel = S.intel[q.mon] || 0;
+  const effDanger = q.danger * (1 - intel/100*0.5);
+  let pow = 0, luck = 0;
+  const hasPriest = party.some(p => p.cls === 'priest');
+  party.forEach(p => {
+    let x = power(p) * (0.8 + p.morale/250);
+    if (p.trait === 'reckless') x *= 1.15;
+    if (p.trait === 'cautious') x *= 0.9;
+    if (p.trait === 'lucky') luck = 0.08;
+    pow += x;
+  });
+  const ratio = pow / Math.max(1, effDanger);
+  const succ = party.length ? clamp(1/(1+Math.exp(-4.5*(ratio-1))) + luck, 0.03, 0.97) : 0;
+  const risk = {};
+  party.forEach(p => {
+    let r = 0.22 * Math.pow(effDanger/Math.max(1,pow), 1.6);
+    r *= CLASSES[p.cls].death;
+    if (p.trait === 'reckless') r *= 1.6;
+    if (p.trait === 'cautious') r *= 0.5;
+    if (hasPriest && p.cls !== 'priest') r *= 0.7;
+    if (bless) r *= 0.5;
+    risk[p.id] = clamp(r, 0.01, 0.6);
+  });
+  // 綜合死亡率（成功 ×1，失敗 ×1.8）
+  const total = {};
+  party.forEach(p => total[p.id] = clamp(risk[p.id]*succ + clamp(risk[p.id]*1.8,0,0.9)*(1-succ), 0, 0.95));
+  return {succ, risk, total, effDanger, pow, intel};
+}
+
+/* ---------- 派遣 ---------- */
+function openDispatch(qid){
+  const q = S.quests.find(x => x.id === qid); if (!q) return;
+  const sel = new Set(); let bless = false;
+  const idle = S.players.filter(p => p.status === 'idle');
+  const draw = () => {
+    const party = [...sel].map(getP);
+    const e = estimate(q, party, bless);
+    $('#mHead').innerHTML = `<h2>${esc(q.title)}</h2><div class="sub">${MON[q.mon].n}｜${'★'.repeat(q.tier)}｜${q.days} 日｜賞金 ${q.reward}｜最少 ${q.min} 人</div>`;
+    $('#mBody').innerHTML = `
+      <div class="c-dim" style="font-size:13px">「${esc(MON[q.mon].d)}」　攻略進度 ${S.intel[q.mon]}%</div>
+      <div class="est">
+        <div><span class="c-dim">成功率 <i class="info" tabindex="0" data-tip="隊伍戰力對比任務危險度。攻略進度越高，怪物危險度越低（最多減一半）。士氣高嘅玩家打得勁啲。">i</i></span><b class="${e.succ>=.6?'c-green':e.succ>=.35?'c-gold':'c-red'}">${party.length?pct(e.succ):'—'}</b></div>
+        <div><span class="c-dim">隊伍戰力</span><b>${Math.round(e.pow)}</b></div>
+        <div><span class="c-dim">實際危險度</span><b>${Math.round(e.effDanger)}</b></div>
+      </div>
+      <div class="section" style="margin-top:6px">揀隊員（${sel.size}/5）<i class="info" tabindex="0" data-tip="右邊係每個人今次嘅綜合死亡率。死咗就永久消失，佢哋唔會復活。失敗時死亡率會高好多。">i</i></div>
+      ${idle.length ? idle.map(p => `
+        <label class="pick ${sel.has(p.id)?'sel':''}" data-id="${p.id}">
+          <input type="checkbox" ${sel.has(p.id)?'checked':''}>
+          <span>${CLASSES[p.cls].ic} <b>${esc(p.name)}</b> <span class="c-dim">Lv${p.lv}</span> <span class="${TRAITS[p.trait].c}">${TRAITS[p.trait].n}</span><br><span class="c-dim" style="font-size:12px">戰力 ${power(p)}｜士氣 ${p.morale}</span></span>
+          <span class="risk">${sel.has(p.id) ? `死亡率<br><b class="${e.total[p.id]>.25?'c-red':e.total[p.id]>.1?'c-gold':'c-green'}">${pct(e.total[p.id])}</b>` : ''}</span>
+        </label>`).join('') : '<p class="c-dim">冇閒置嘅玩家。佢哋全部出咗去，或者……</p>'}
+      <label class="pick ${bless?'sel':''}" id="blessRow" style="margin-top:10px">
+        <input type="checkbox" ${bless?'checked':''} ${S.faith<20?'disabled':''}>
+        <span>✨ 施展神蹟（−20 信仰）<br><span class="c-dim" style="font-size:12px">全隊死亡率減半。佢哋會以為係「隱藏 buff」。</span></span>
+      </label>`;
+    $('#mFoot').innerHTML = `<button id="mCancel">取消</button><button class="primary" id="mGo" ${(sel.size<q.min||sel.size>5)?'disabled':''}>出發</button>`;
+    $('#mBody').querySelectorAll('.pick[data-id]').forEach(el => el.onclick = ev => {
+      ev.preventDefault();
+      const id = +el.dataset.id;
+      if (sel.has(id)) sel.delete(id); else if (sel.size < 5) sel.add(id);
+      const st = $('#mBody').scrollTop; draw(); $('#mBody').scrollTop = st;
+    });
+    $('#blessRow').onclick = ev => { ev.preventDefault(); if (S.faith >= 20){ bless = !bless; const st=$('#mBody').scrollTop; draw(); $('#mBody').scrollTop=st; } };
+    $('#mCancel').onclick = closeModal;
+    $('#mGo').onclick = () => {
+      if (bless) S.faith -= 20;
+      party.forEach(p => p.status = 'quest');
+      S.quests = S.quests.filter(x => x.id !== q.id);
+      S.active.push({id:S.uid++, q, party:party.map(p => p.id), left:q.days, bless});
+      const talker = pick(party);
+      log(`派出 ${party.map(p=>p.name).join('、')} 前往「${q.title}」。`, 'c-blue');
+      log(`${talker.name}：「${pick(SAY.go)}」`, 'c-dim');
+      closeModal(); save(); render();
+    };
+  };
+  openModal(); draw();
+}
+
+/* ---------- 結算 ---------- */
+function resolve(a){
+  const q = a.q;
+  const party = a.party.map(getP).filter(Boolean);
+  const e = estimate(q, party, a.bless);
+  const ok = Math.random() < e.succ;
+  const lines = [], dead = [];
+  party.forEach(p => {
+    const r = ok ? e.risk[p.id] : clamp(e.risk[p.id]*1.8, 0, 0.9);
+    if (Math.random() < r) dead.push(p);
+  });
+  // 攻略：試錯越多學得越多
+  const wikiMult = party.some(p => p.trait === 'wiki') ? 1.5 : 1;
+  let gain = (ok ? 8 : 18) + dead.length*15;
+  gain = Math.round(gain * wikiMult);
+  const before = S.intel[q.mon];
+  S.intel[q.mon] = Math.min(100, before + gain);
+
+  lines.push(`<p>${ok ? '<b class="c-green">任務成功</b>' : '<b class="c-red">任務失敗</b>'}　（成功率 ${pct(e.succ)}）</p>`);
+  const sp = pick(party.filter(p => !dead.includes(p)).concat(party));
+  lines.push(`<p class="c-dim">${esc(sp.name)}：「${pick(ok ? SAY.win : SAY.fail)}」</p>`);
+
+  dead.forEach(p => {
+    const last = pick(SAY.dieLast);
+    const tip = `${p.name} 嘅遺言：「${last}」`;
+    S.wiki[q.mon].push(tip);
+    S.graves.push({name:p.name, cls:p.cls, lv:p.lv, day:S.day, where:q.title, last});
+    lines.push(`<p class="c-red">☠ ${esc(p.name)}（Lv${p.lv} ${CLASSES[p.cls].n}）倒下咗，冇再起身。<br><span class="c-dim">最後一句：「${esc(last)}」</span></p>`);
+    log(`☠ ${p.name} 喺「${q.title}」死亡。佢唔會再上線。`, 'c-red');
+  });
+  S.players = S.players.filter(p => !dead.includes(p));
+  const alive = party.filter(p => !dead.includes(p));
+  if (dead.length){
+    S.players.forEach(p => p.morale = clamp(p.morale - 6, 0, 100));
+    alive.forEach(p => p.morale = clamp(p.morale - 12, 0, 100));
+    if (alive.length) lines.push(`<p class="c-dim">${esc(pick(alive).name)}：「${esc(pick(SAY.mourn).replace('{d}', dead[0].name))}」</p>`);
+  }
+  if (gain) lines.push(`<p class="c-purple">📖 ${MON[q.mon].n} 攻略 +${S.intel[q.mon]-before}%（${ok?'實戰經驗':'失敗都係經驗'}${dead.length?'；用命換返嚟嘅情報':''}）</p>`);
+
+  alive.forEach(p => { p.status = 'idle'; p.done++; });
+  if (ok){
+    S.cor = clamp(S.cor - q.tier*3, 0, 100);
+    S.div = clamp(S.div + q.tier*2 + (q.main?50:0), 0, 100);
+    alive.forEach(p => p.morale = clamp(p.morale + 5, 0, 100));
+    log(`「${q.title}」完成。神格 +${q.tier*2}。`, 'c-green');
+  } else {
+    S.cor = clamp(S.cor + q.tier*2, 0, 100);
+    alive.forEach(p => { p.inj = R(1,2); p.status = 'injured'; });
+    log(`「${q.title}」失敗，詭異 +${q.tier*2}。生還者受傷休養。`, 'c-gold');
+  }
+  if (q.main && ok) S.over = 'win';
+  if (q.main && !ok){ S.quests.unshift({...q, id:S.uid++}); log('空白神座上嘅嘢仲坐喺度。委託書重新出現喺櫃台。', 'c-red'); }
+  pendingReports.push({q, ok, lines, alive:alive.map(p => p.id), dead:dead.length});
+}
+
+function showReport(rep){
+  let share = 50;
+  const draw = () => {
+    const alive = rep.alive.map(getP).filter(Boolean);
+    $('#mHead').innerHTML = `<h2>${rep.ok?'🏆':'💀'} ${esc(rep.q.title)}</h2><div class="sub">任務報告｜${MON[rep.q.mon].n}</div>`;
+    let html = `<div class="lines">${rep.lines.join('')}</div>`;
+    if (rep.ok && alive.length){
+      const each = Math.floor(rep.q.reward * share/100 / alive.length);
+      const mine = rep.q.reward - each*alive.length;
+      html += `<div class="share">
+        <div class="row"><b>分賞金俾玩家 <i class="info" tabindex="0" data-tip="分得越多，玩家升級越快、越開心。留低嘅就係你嘅信仰。分得太少會打擊士氣；貪婪嘅玩家要 60% 以上先滿意。士氣跌到好低，玩家會直接退遊。">i</i></b><b class="c-gold">${share}%</b></div>
+        <input type="range" id="shareR" min="0" max="100" step="5" value="${share}">
+        <div class="row"><span>每人得 <b class="c-green">${each} EXP</b>（${alive.length} 人）</span><span>你得 <b class="c-gold">${mine} 信仰</b></span></div>
+        ${alive.map(p => {
+          const m = moraleDelta(p, share);
+          return `<div class="row"><span>${CLASSES[p.cls].ic} ${esc(p.name)} <span class="${TRAITS[p.trait].c}">${TRAITS[p.trait].n}</span></span><span class="${m>0?'c-green':m<0?'c-red':'c-dim'}">士氣 ${m>0?'+':''}${m}</span></div>`;
+        }).join('')}
+      </div>`;
+    } else if (rep.ok){
+      html += `<p class="c-dim">冇人生還去領賞。賞金 ${rep.q.reward} 全數歸你。</p>`;
+    }
+    $('#mBody').innerHTML = html;
+    $('#mFoot').innerHTML = `<button class="primary" id="mOk">${rep.ok&&alive.length?'確認分配':'知道'}</button>`;
+    const r = $('#shareR'); if (r) r.oninput = () => { share = +r.value; const st=$('#mBody').scrollTop; draw(); $('#mBody').scrollTop=st; };
+    $('#mOk').onclick = () => {
+      if (rep.ok){
+        if (alive.length){
+          const each = Math.floor(rep.q.reward * share/100 / alive.length);
+          S.faith += rep.q.reward - each*alive.length;
+          alive.forEach(p => {
+            p.morale = clamp(p.morale + moraleDelta(p, share), 0, 100);
+            p.exp += each;
+            while (p.exp >= expNeed(p.lv)){ p.exp -= expNeed(p.lv); p.lv++; log(`⬆ ${p.name} 升到 Lv${p.lv}！`, 'c-green'); }
+          });
+          log(`分出 ${share}% 賞金，收回 ${rep.q.reward - each*alive.length} 信仰。`, 'c-gold');
+        } else S.faith += rep.q.reward;
+      }
+      checkLeavers();
+      closeModal(); save(); render(); nextReport();
+    };
+  };
+  openModal(); draw();
+}
+function moraleDelta(p, share){
+  if (p.trait === 'greedy') return share >= 60 ? 8 : share >= 40 ? -8 : -20;
+  return share >= 50 ? 8 : share >= 30 ? 0 : share >= 15 ? -10 : -18;
+}
+function checkLeavers(){
+  S.players.filter(p => p.morale <= 10 && p.status === 'idle').forEach(p => {
+    log(`🚪 ${p.name}：「呢隻 game 爛到喊，退坑！」——佢消失喺光入面，返咗去原本嘅世界。`, 'c-gold');
+    S.graves.push({name:p.name, cls:p.cls, lv:p.lv, day:S.day, where:'退遊', last:'退坑！', left:true});
+  });
+  S.players = S.players.filter(p => !(p.morale <= 10 && p.status === 'idle'));
+}
+function nextReport(){
+  if (pendingReports.length) showReport(pendingReports.shift());
+  else checkEnd();
+}
+
+/* ---------- 每日 ---------- */
+function nextDay(){
+  if (S.over) return;
+  S.day++;
+  logDay();
+  // 任務進度
+  const finished = [];
+  S.active.forEach(a => { a.left--; if (a.left <= 0) finished.push(a); });
+  S.active = S.active.filter(a => a.left > 0);
+  finished.forEach(resolve);
+  // 傷患
+  S.players.forEach(p => { if (p.status === 'injured' && --p.inj <= 0) p.status = 'idle'; });
+  // 莽撞玩家自己去試錯
+  S.players.filter(p => p.status === 'idle' && p.trait === 'reckless').forEach(p => {
+    if (Math.random() > 0.3) return;
+    const m = pick(MONS.filter(x => !x.boss));
+    log(`${p.name}：「${pick(SAY.solo)}」——佢自己走咗去${m.n}嗰邊。`, 'c-dim');
+    const die = Math.random() < clamp(0.18 - p.lv*0.02, 0.04, 0.2);
+    if (die){
+      const last = pick(SAY.dieLast);
+      S.intel[m.id] = Math.min(100, S.intel[m.id] + 15);
+      S.wiki[m.id].push(`${p.name}（單人試錯）嘅遺言：「${last}」`);
+      S.graves.push({name:p.name, cls:p.cls, lv:p.lv, day:S.day, where:'單人試錯：'+m.n, last});
+      S.players = S.players.filter(x => x !== p);
+      S.players.forEach(x => x.morale = clamp(x.morale - 6, 0, 100));
+      log(`☠ ${p.name} 冇返嚟。但佢死前喺論壇留低咗 ${m.n} 嘅情報（攻略 +15%）。`, 'c-red');
+    } else {
+      S.intel[m.id] = Math.min(100, S.intel[m.id] + 6);
+      p.exp += 6;
+      while (p.exp >= expNeed(p.lv)){ p.exp -= expNeed(p.lv); p.lv++; }
+      S.wiki[m.id].push(`${p.name}：「${pick(['佢怕光','唔好望佢對眼','佢只會攻擊郁緊嘅嘢','喺佢背後行就安全','佢會扮你隊友把聲'])}」`);
+      log(`${p.name} 試錯回來，${m.n} 攻略 +6%。`, 'c-purple');
+    }
+  });
+  // 過期任務
+  S.quests.filter(q => q.expire < S.day).forEach(q => {
+    S.cor = clamp(S.cor + q.tier*3, 0, 100);
+    log(`⌛ 冇人接「${q.title}」，村民失蹤咗。詭異 +${q.tier*3}。`, 'c-gold');
+  });
+  S.quests = S.quests.filter(q => q.expire >= S.day);
+  // 每日變化
+  const streamers = S.players.filter(p => p.trait === 'streamer').length;
+  const tithe = (S.cor < 60 ? 4 : 1) + streamers*3;
+  S.faith += tithe;
+  const creep = Math.min(4, 2 + Math.floor(S.day/12));
+  S.cor = clamp(S.cor + creep, 0, 100);
+  S.players.forEach(p => { if (p.status === 'idle') p.morale = clamp(p.morale + 1, 0, 100); });
+  refillBoards();
+  save(); render();
+  if (S.over === 'win' || S.cor >= 100){ /* 報告後判斷 */ }
+  nextReport();
+}
+
+function checkEnd(){
+  if (S.over === 'win'){ endScreen(true); return; }
+  if (S.cor >= 100){ S.over = 'lose'; save(); endScreen(false, '詭異吞噬咗整條村。你嘅名，最後一個記得嘅人都唔記得咗。'); return; }
+  if (!S.players.length && !S.active.length && S.faith < summonCost()){
+    S.over = 'lose'; save(); endScreen(false, '再冇玩家，亦冇足夠信仰召喚新嘅。神殿嘅燭火熄咗。'); return;
+  }
+}
+function endScreen(win, msg){
+  $('#mHead').innerHTML = `<h2>${win ? '👑 神格復甦' : '🕯️ 神明隕落'}</h2><div class="sub">第 ${S.day} 日</div>`;
+  const survivors = S.players.map(p => `${esc(p.name)} Lv${p.lv}`).join('、') || '冇';
+  $('#mBody').innerHTML = win
+    ? `<p>空白神座上嘅嘢崩散咗。你重新坐返上去。</p><p class="c-dim">生還玩家：${survivors}</p><p class="c-dim">佢哋登出嗰陣，以為自己打通咗一隻好真嘅遊戲。</p><p>犧牲者 ${S.graves.filter(g=>!g.left).length} 人。佢哋嘅名會刻喺你神殿嘅牆上。</p>`
+    : `<p>${msg}</p><p class="c-dim">死亡 ${S.graves.filter(g=>!g.left).length} 人，退遊 ${S.graves.filter(g=>g.left).length} 人。</p>`;
+  $('#mFoot').innerHTML = `<button class="primary" id="mAgain">再嚟一局</button>`;
+  $('#mAgain').onclick = () => { closeModal(); newGame(); };
+  openModal();
+}
+
+/* ---------- 召喚 ---------- */
+function summon(){
+  const c = summonCost();
+  if (S.faith < c || S.players.length >= 5) return;
+  S.faith -= c; S.summons++;
+  const p = makePlayer();
+  S.players.push(p);
+  log(`✨ 召喚成功：${p.name}（${CLASSES[p.cls].n}・${TRAITS[p.trait].n}）登入咗。`, 'c-gold');
+  log(`${p.name}：「哇，新手村建模好真！」`, 'c-dim');
+  save(); render();
+}
+
+/* ---------- 畫面 ---------- */
+function stars(t){ return `<span class="stars">${'★'.repeat(Math.min(t,6))}</span>`; }
+function questCard(q){
+  const e = S.intel[q.mon];
+  const left = q.expire === Infinity ? '不會過期' : `剩 ${q.expire - S.day + 1} 日過期`;
+  return `<div class="q ${q.main?'main':''}">
+    <div class="t">${esc(q.title)}</div>
+    <div class="meta">${stars(q.tier)}<span class="tag">${MON[q.mon].n}</span><span class="tag">${q.days} 日</span><span class="tag">最少 ${q.min} 人</span></div>
+    <div class="meta"><span>💰 賞金 <b class="c-gold">${q.reward}</b></span><span>☠ 危險 ${q.danger}</span><span class="c-purple">📖 ${e}%</span></div>
+    <div class="row" style="align-items:center"><span class="c-dim" style="font-size:12px">${left}</span><button class="primary" data-go="${q.id}">派人</button></div>
+  </div>`;
+}
+function playerCard(p){
+  const st = {idle:'<span class="c-green">閒置</span>', quest:'<span class="c-blue">任務中</span>', injured:`<span class="c-gold">受傷（${p.inj}日）</span>`}[p.status];
+  const mc = p.morale >= 60 ? 'var(--green)' : p.morale >= 30 ? 'var(--gold)' : 'var(--red)';
+  return `<div class="pl">
+    <div class="hd"><span class="nm">${CLASSES[p.cls].ic} ${esc(p.name)}</span><span>${st}</span></div>
+    <div class="row"><span>Lv${p.lv} ${CLASSES[p.cls].n}<i class="info" tabindex="0" data-tip="${CLASSES[p.cls].d}">i</i></span><span class="${TRAITS[p.trait].c}">${TRAITS[p.trait].n}<i class="info" tabindex="0" data-tip="${TRAITS[p.trait].d}">i</i></span></div>
+    <div class="row"><span>戰力 <b>${power(p)}</b></span><span class="c-dim">完成 ${p.done} 次</span></div>
+    <div class="row c-dim" style="margin-top:6px"><span>EXP</span><span>${p.exp}/${expNeed(p.lv)}</span></div>
+    <div class="mini"><i style="width:${p.exp/expNeed(p.lv)*100}%;background:var(--blue)"></i></div>
+    <div class="row c-dim"><span>士氣</span><span>${p.morale}</span></div>
+    <div class="mini"><i style="width:${p.morale}%;background:${mc}"></i></div>
+  </div>`;
+}
+function renderPanel(){
+  const P = $('#panel');
+  if (tab === 'temple'){
+    const c = summonCost();
+    P.innerHTML = `
+      <div class="role"><div class="ic">⛩️</div><div><h3>神明・破落神殿</h3><p>屋頂穿咗，神像冇咗頭。呢度係你真正嘅身份。你可以從異界召喚「玩家」，佢哋以為一切都係遊戲。</p></div></div>
+      <div class="row" style="align-items:center;justify-content:flex-start;gap:12px">
+        <button class="primary" id="btnSummon" ${S.faith<c||S.players.length>=5?'disabled':''}>✨ 召喚玩家（${c} 信仰）</button>
+        <span class="c-dim">玩家 ${S.players.length}/5<i class="info" tabindex="0" data-tip="同時最多 5 個玩家。每召喚一次，下次就貴 15 信仰。開局嗰 5 個係用你最後嘅神力召喚，唔計數。">i</i></span>
+      </div>
+      <div class="section">進行中嘅任務</div>
+      ${S.active.length ? S.active.map(a => `<div class="grave" style="border-left-color:var(--blue)"><div><b>${esc(a.q.title)}</b> ${a.bless?'<span class="c-gold">✨神蹟</span>':''}<br><span class="c-dim">${a.party.map(id => esc(getP(id)?.name || '?')).join('、')}｜仲有 ${a.left} 日</span></div></div>`).join('') : '<p class="c-dim">冇。去新手村或者公會派任務啦。</p>'}
+      <div class="section">墓碑牆</div>
+      ${S.graves.length ? S.graves.slice().reverse().map(g => `<div class="grave"><div>${g.left?'🚪':'🪦'}</div><div><b>${esc(g.name)}</b> <span class="c-dim">Lv${g.lv} ${CLASSES[g.cls].n}｜第 ${g.day} 日｜${esc(g.where)}</span><div class="q2">「${esc(g.last)}」</div></div></div>`).join('') : '<p class="c-dim">暫時一個名都未有。暫時。</p>'}`;
+    const b = $('#btnSummon'); if (b) b.onclick = summon;
+  } else if (tab === 'village' || tab === 'guild'){
+    const qs = S.quests.filter(q => q.board === tab);
+    P.innerHTML = (tab === 'village'
+      ? `<div class="role"><div class="ic">🧓</div><div><h3>村長身份・新手村告示板</h3><p>你化身成村長，貼出「新手任務」。難度低、賞金少，啱新玩家練級。</p></div></div>`
+      : `<div class="role"><div class="ic">🧾</div><div><h3>公會櫃台・冒險者委託</h3><p>你化身成冒險者公會嘅櫃台職員，微笑住遞上高危委託。隨住日子過去，委託會越嚟越難。</p></div></div>`)
+      + `<div class="grid">${qs.map(questCard).join('') || '<p class="c-dim">暫時冇委託。</p>'}</div>`;
+    P.querySelectorAll('[data-go]').forEach(b => b.onclick = () => openDispatch(+b.dataset.go));
+  } else if (tab === 'players'){
+    P.innerHTML = `<div class="role"><div class="ic">🎮</div><div><h3>玩家名冊</h3><p>佢哋叫你做「NPC」。佢哋會亂衝、會試錯、會死——而佢哋唔知道死咗就冇得重嚟。</p></div></div>
+      <div class="grid">${S.players.map(playerCard).join('') || '<p class="c-dim">一個玩家都冇。去神殿召喚啦。</p>'}</div>`;
+  } else if (tab === 'wiki'){
+    P.innerHTML = `<div class="role"><div class="ic">📖</div><div><h3>玩家論壇・攻略 Wiki</h3><p>玩家每次挑戰都會寫攻略，失敗學得仲多，死者嘅遺言最有用。攻略越高，該怪物嘅危險度越低（最多 −50%）。</p></div></div>
+      <div class="grid">${MONS.filter(m => !m.boss || S.mainSpawned).map(m => `<div class="wiki">
+        <div class="row"><b>${m.n}</b><span class="c-purple">${S.intel[m.id]}%</span></div>
+        <div class="mini"><i style="width:${S.intel[m.id]}%;background:var(--purple)"></i></div>
+        <div class="c-dim" style="font-size:12px;margin-top:4px">${esc(m.d)}</div>
+        <ul>${S.wiki[m.id].slice(-4).reverse().map(t => `<li>${esc(t)}</li>`).join('') || '<li class="c-dim">未有人寫</li>'}</ul>
+      </div>`).join('')}</div>`;
+  }
+  P.querySelectorAll('.info').forEach(bindTip);
+}
+function render(){
+  $('#sDay').textContent = S.day;
+  $('#sFaith').textContent = S.faith;
+  $('#sDiv').textContent = S.div; $('#bDiv').style.width = S.div + '%';
+  $('#sCor').textContent = S.cor; $('#bCor').style.width = S.cor + '%';
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  const badge = (id, n) => { const el = $(id); el.textContent = n; el.classList.toggle('show', n > 0); };
+  badge('#bgTemple', S.active.length);
+  badge('#bgVillage', S.quests.filter(q => q.board === 'village').length);
+  badge('#bgGuild', S.quests.filter(q => q.board === 'guild').length);
+  badge('#bgPlayers', S.players.filter(p => p.status === 'idle').length);
+  badge('#bgWiki', 0);
+  $('#btnNext').disabled = !!S.over;
+  renderPanel(); renderLog();
+}
+
+/* ---------- 彈窗 / 提示 ---------- */
+function openModal(){ $('#veil').classList.add('show'); }
+function closeModal(){ $('#veil').classList.remove('show'); hideTip(); }
+const tipEl = $('#tip');
+function showTip(el){
+  tipEl.textContent = el.dataset.tip; tipEl.style.display = 'block';
+  const r = el.getBoundingClientRect(), w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+  let x = clamp(r.left + r.width/2 - w/2, 8, innerWidth - w - 8);
+  let y = r.bottom + 8; if (y + h > innerHeight - 8) y = r.top - h - 8;
+  tipEl.style.left = x + 'px'; tipEl.style.top = y + 'px';
+}
+function hideTip(){ tipEl.style.display = 'none'; }
+function bindTip(el){
+  if (el._b) return; el._b = true;
+  el.addEventListener('mouseenter', () => showTip(el));
+  el.addEventListener('mouseleave', hideTip);
+  el.addEventListener('focus', () => showTip(el));
+  el.addEventListener('blur', hideTip);
+  el.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); showTip(el); });
+}
+new MutationObserver(() => document.querySelectorAll('#mBody .info, #top .info').forEach(bindTip))
+  .observe($('#modal'), {childList:true, subtree:true});
+
+/* ---------- 存檔 ---------- */
+function save(){ try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch(e){} }
+function load(){
+  try {
+    const d = JSON.parse(localStorage.getItem(SAVE_KEY));
+    if (d && d.players){ d.quests.forEach(q => { if (q.expire === null) q.expire = Infinity; }); S = d; return true; }
+  } catch(e){}
+  return false;
+}
+
+/* ---------- 綁定 ---------- */
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { tab = b.dataset.tab; render(); $('#panel').scrollTop = 0; });
+$('#btnNext').onclick = nextDay;
+$('#btnNew').onclick = () => { if (confirm('放棄呢局，重新開始？')) newGame(); };
+document.querySelectorAll('#top .info').forEach(bindTip);
+document.addEventListener('click', e => { if (!e.target.classList.contains('info')) hideTip(); });
+
+if (load()){ render(); if (S.over) checkEnd(); } else newGame();
+</script>
+</body>
+</html>
